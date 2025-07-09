@@ -1,13 +1,28 @@
-/* ————————————————————————————————————————————————————— */
+:root {
+  --gh-bg: #0d1117;
+  --gh-surface: #161b22;
+  --gh-text: #c9d1d9;
+  --gh-primary: #1f6feb;
+  --gh-primary-dark: #1158c7;
+  --gh-accent: #2ea043;
+  --gh-border: #30363d;
+}
+
 /* 0. Scroll suave */
 html {
   scroll-behavior: smooth;
 }
 
+body {
+  background: var(--gh-bg);
+  color: var(--gh-text);
+  font-family: "Inter", sans-serif;
+}
+
 /* 1. Hero */
 .hero {
   height: calc(100vh - 64px);
-  background: linear-gradient(135deg, #4f46e5, #818cf8);
+  background: linear-gradient(135deg, var(--gh-surface), var(--gh-bg));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -36,8 +51,8 @@ html {
   margin-bottom: 2rem;
 }
 .cta-button {
-  background: #fff;
-  color: #4f46e5;
+  background: var(--gh-primary);
+  color: #fff;
   padding: .75rem 1.75rem;
   border-radius: .5rem;
   font-weight: 600;
@@ -45,25 +60,25 @@ html {
   transition: transform .2s, background .2s;
 }
 .cta-button:hover {
-  background: #f3f4f6;
+  background: var(--gh-primary-dark);
   transform: translateY(-2px);
 }
 
 /* 2. Sección productos */
 .productos-seccion {
-  background: #f9fafb;
+  background: var(--gh-bg);
   padding: 4rem 2rem;
 }
 .productos-seccion h2 {
   text-align: center;
   font-size: 2.25rem;
-  color: #222;
+  color: var(--gh-text);
   margin-bottom: 2rem;
 }
 
 /* 3. Cards refinadas */
 .card {
-  background: #fff;
+  background: var(--gh-surface);
   border-radius: 1rem;
   box-shadow: 0 6px 20px rgba(0,0,0,0.08);
   padding: 1.5rem;
@@ -88,18 +103,18 @@ html {
 .card h3 {
   margin: .5rem 0;
   font-size: 1.25rem;
-  color: #111827;
+  color: var(--gh-text);
 }
 .card p {
-  color: #6b7280;
+  color: var(--gh-text);
   margin-bottom: 1rem;
 }
 .card .boton {
-  background: #4f46e5;
+  background: var(--gh-primary);
   color: #fff;
 }
 .card .boton:hover {
-  background: #3730a3;
+  background: var(--gh-primary-dark);
 }
 
 /* 6. Grid responsive */
@@ -114,8 +129,8 @@ html {
 /* 7. Navbar refinado */
 .navbar {
   padding: 1rem 2rem;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  background: var(--gh-surface);
+  box-shadow: 0 1px 0 var(--gh-border);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -129,11 +144,99 @@ html {
 
 /* 8. Footer limpio */
 .footer {
-  background: #fff;
+  background: var(--gh-surface);
   text-align: center;
   padding: 2rem;
   font-size: .9rem;
-  color: #6b7280;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+  color: var(--gh-text);
+  box-shadow: 0 -1px 0 var(--gh-border);
+}
+/* ————————————————————————————————————————————————————— */
+/* 9. Carrito */
+.titulo-carrito {
+  text-align: center;
+  font-size: 2rem;
+  margin-top: 1rem;
+}
+.carrito-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.carrito-item {
+  display: flex;
+  gap: 1rem;
+  background: var(--gh-surface);
+  border: 1px solid var(--gh-border);
+  padding: 1rem;
+  border-radius: 8px;
+}
+.carrito-img {
+  width: 100px;
+  height: auto;
+  border-radius: 6px;
+}
+.carrito-info h2 {
+  margin: 0 0 .5rem;
+  color: var(--gh-text);
+}
+.carrito-controles {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin: .5rem 0;
+}
+.btn-control, .btn-quitar {
+  background: var(--gh-primary);
+  border: none;
+  color: #fff;
+  padding: 0.25rem .5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn-quitar {
+  background: #da3633;
+}
+.cantidad {
+  padding: 0 .5rem;
+}
+.carrito-resumen {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: var(--gh-surface);
+  border: 1px solid var(--gh-border);
+  border-radius: 8px;
+  text-align: right;
+}
+.resumen-botones {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+.btn-vaciar {
+  background: #da3633;
+  color: #fff;
+  border: none;
+  padding: .5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn-comprar {
+  background: var(--gh-accent);
+  color: #fff;
+  padding: .5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+}
+.volver-link {
+  color: var(--gh-primary);
+  text-decoration: none;
+}
+.volver-link:hover {
+  text-decoration: underline;
 }
 /* ————————————————————————————————————————————————————— */

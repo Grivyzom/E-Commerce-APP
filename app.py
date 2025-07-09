@@ -31,7 +31,7 @@ app = Flask(__name__)
 app.secret_key = "supersecret_comerciotech_2025"
 
 # Configuración de base de datos - VM Ubuntu
-VM_IP = "192.168.1.6"  # IP de tu VM Ubuntu
+VM_IP = "192.168.1.17"  # IP de tu VM Ubuntu
 
 DB_CONFIG = {
     'host': VM_IP,
@@ -466,8 +466,6 @@ def detalle_pedido(pedido_id):
     pedido['detalles'] = detalles
     
     return render_template("detalle_pedido.html", pedido=pedido)
-
-
 
 @app.route("/disminuir/<int:producto_id>", methods=["POST"])
 def disminuir(producto_id):
