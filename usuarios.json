@@ -1,0 +1,22 @@
+[
+  {
+    "nombre": "Admin",
+    "apellidos": "Principal",
+    "rut": "9.999.999-9",
+    "email": "admin@tienda.cl",
+    "telefono": "912345678",
+    "direccion": "Oficina Central",
+    "password": "admin@tienda.cl",
+    "rol": "admin"
+  },
+  {
+    "nombre": "Valentina",
+    "apellidos": "Pérez González",
+    "rut": "11.111.111-1",
+    "email": "cliente@correo.cl",
+    "telefono": "987654321",
+    "direccion": "Av. Libertad 456",
+    "password": "1234",
+    "rol": "cliente"
+  }
+]

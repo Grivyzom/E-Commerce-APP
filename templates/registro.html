@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro</title>
+</head>
+<body>
+    <h1>Registrarse</h1>
+    <form action="{{ url_for('registro') }}" method="post">
+        <label>Nombre: <input type="text" name="nombre" required></label><br>
+        <label>Apellidos: <input type="text" name="apellidos" required></label><br>
+        <label>Correo electrónico: <input type="email" name="email" required></label><br>
+        <label>Contraseña: <input type="password" name="password" required></label><br>
+        <label>RUT: <input type="text" name="rut" required></label><br>
+        <label>Teléfono: <input type="text" name="telefono"></label><br>
+        <label>Dirección: <input type="text" name="direccion"></label><br>
+        <button type="submit">Registrarme</button>
+    </form>
+    <br>
+    <a href="{{ url_for('login') }}">← Volver al login</a>
+</body>
+</html>

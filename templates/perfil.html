@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi perfil</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<h1>Mi perfil</h1>
+<form action="{{ url_for('actualizar_perfil') }}" method="POST" class="form-perfil">
+
+    <div class="form-row">
+        <div class="form-group">
+            <label>Nombre:</label>
+            <input type="text" value="{{ usuario.nombre }}" disabled>
+        </div>
+        <div class="form-group">
+            <label>Apellidos:</label>
+            <input type="text" name="apellidos" value="{{ usuario.apellidos }}" required>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label>RUT:</label>
+            <input type="text" value="{{ usuario.rut }}" disabled>
+        </div>
+        <div class="form-group">
+            <label>Teléfono:</label>
+            <input type="tel" name="telefono" value="{{ usuario.telefono }}" required>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" value="{{ usuario.email }}" disabled>
+        </div>
+        <div class="form-group">
+            <label>Dirección:</label>
+            <input type="text" name="direccion" value="{{ usuario.direccion }}" required>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Nueva contraseña:</label>
+        <input type="password" name="password" placeholder="Opcional">
+    </div>
+
+    <div class="form-buttons">
+        <button type="submit">Actualizar</button>
+        <a href="{{ url_for('index') }}">← Volver</a>
+    </div>
+</form>

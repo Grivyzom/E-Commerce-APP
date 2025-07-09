@@ -1,0 +1,32 @@
+from flask import Flask, render_template, request, redirect, url_for, flash
+
+app = Flask(__name__)
+app.secret_key = 'clave_secreta_para_flask'  # Necesario para mensajes flash
+
+@app.route('/')
+def index():
+    return redirect(url_for('login'))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        correo = request.form['correo']
+        password = request.form['password']
+        # Lógica de validación real con BD aquí
+        if correo == "admin@correo.com" and password == "123":
+            flash("Inicio de sesión exitoso", "success")
+            return redirect(url_for('productos'))
+        else:
+            flash("Credenciales inválidas", "danger")
+    return render_template('login.html')
+
+@app.route('/register')
+def register():
+    return render_template('register.html')
+
+@app.route('/productos')
+def productos():
+    return "<h2>Aquí van los productos (pantalla temporal)</h2>"
+
+if __name__ == '__main__':
+    app.run(debug=True)

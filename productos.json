@@ -1,0 +1,20 @@
+[
+    {
+        "id": 1,
+        "nombre": "Notebook Gamer",
+        "precio": 434333,
+        "imagen": "notebook.jpg"
+    },
+    {
+        "id": 2,
+        "nombre": "Mouse Inalámbrico",
+        "precio": 14990,
+        "imagen": "mouse.jpg"
+    },
+    {
+        "id": 3,
+        "nombre": "Teclado Mecánico",
+        "precio": 29990,
+        "imagen": "teclado.jpg"
+    }
+]

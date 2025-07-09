@@ -1,0 +1,59 @@
+[
+    {
+        "id": 1,
+        "usuario": "cliente1@email.com",
+        "fecha": "2025-07-08",
+        "productos": [
+            {
+                "nombre": "Notebook Gamer",
+                "cantidad": 1,
+                "precio": 799990
+            },
+            {
+                "nombre": "Mouse",
+                "cantidad": 2,
+                "precio": 14990
+            }
+        ],
+        "total": 829970,
+        "estado": "En preparación"
+    },
+    {
+        "id": 2,
+        "usuario": "Valentina",
+        "fecha": "2025-07-08 12:04",
+        "total": 829980,
+        "estado": "Pendiente",
+        "detalles": [
+            {
+                "nombre_producto": "Notebook Gamer",
+                "cantidad": 1,
+                "precio_unitario": 799990
+            },
+            {
+                "nombre_producto": "Teclado Mecánico",
+                "cantidad": 1,
+                "precio_unitario": 29990
+            }
+        ]
+    },
+    {
+        "id": 3,
+        "usuario": "Valentina",
+        "fecha": "2025-07-08 12:05",
+        "total": 814980,
+        "estado": "Pendiente",
+        "detalles": [
+            {
+                "nombre_producto": "Notebook Gamer",
+                "cantidad": 1,
+                "precio_unitario": 799990
+            },
+            {
+                "nombre_producto": "Mouse Inalámbrico",
+                "cantidad": 1,
+                "precio_unitario": 14990
+            }
+        ]
+    }
+]

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Pedidos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body>
+    <h1>🧾 Mis pedidos</h1>
+    <a href="{{ url_for('index') }}" class="volver-link">← Volver al inicio</a>
+
+    {% if pedidos %}
+    {% for pedido in pedidos %}
+    <a href="{{ url_for('detalle_pedido', pedido_id=pedido.id) }}" class="pedido-card">
+        <p><strong>Pedido #{{ pedido.id }}</strong> - {{ pedido.fecha }}</p>
+        <p>Total: ${{ "{:,}".format(pedido.total) }}</p>
+    </a>
+    {% endfor %}
+    {% else %}
+    <p>No tienes pedidos aún.</p>
+    {% endif %}
+
+</body>
+
+</html>

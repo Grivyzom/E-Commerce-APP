@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Carrito de compras</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1 class="titulo-carrito">Carrito de compras</h1>
+    <a href="{{ url_for('index') }}" class="volver-link">← Seguir comprando</a>
+
+    <div class="carrito-container">
+        {% for item in carrito %}
+        <div class="carrito-item">
+            <img src="{{ url_for('static', filename='img/' + item.imagen) }}" class="carrito-img">
+
+            <div class="carrito-info">
+                <h2>{{ item.nombre }}</h2>
+                <p>Precio unitario: <strong>${{ "{:,}".format(item.precio) }}</strong></p>
+
+                <div class="carrito-controles">
+                    <form action="{{ url_for('disminuir', producto_id=item.id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn-control">−</button>
+                    </form>
+
+                    <span class="cantidad">{{ item.cantidad }}</span>
+
+                    <form action="{{ url_for('incrementar', producto_id=item.id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn-control">+</button>
+                    </form>
+
+                    <form action="{{ url_for('eliminar', producto_id=item.id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn-quitar">🗑 Quitar</button>
+                    </form>
+                </div>
+
+                <p>Total: <strong>${{ "{:,}".format(item.precio * item.cantidad) }}</strong></p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="carrito-resumen">
+        <p><strong>Total a pagar:</strong> ${{ "{:,}".format(total) }}</p>
+        <div class="resumen-botones">
+            <form action="{{ url_for('vaciar_carrito') }}" method="post" style="display:inline;">
+                <button type="submit" class="btn-vaciar">🗑 Vaciar carrito</button>
+            </form>
+            <a href="{{ url_for('finalizar_compra') }}" class="btn-comprar">✅ Finalizar compra</a>
+        </div>
+    </div>
+
+    <footer class="footer">
+        &copy; 2025 Mi Tienda. Todos los derechos reservados.
+    </footer>
+</body>
+</html>

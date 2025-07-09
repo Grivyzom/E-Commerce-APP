@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle del pedido</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+    <h1 class="titulo-carrito">Detalle del Pedido #{{ pedido.id }}</h1>
+    <a href="{{ url_for('mis_pedidos') }}" class="volver-link">← Volver a mis pedidos</a>
+
+    <p><strong>Fecha:</strong> {{ pedido.fecha }}</p>
+    <p><strong>Estado:</strong> {{ pedido.estado }}</p>
+
+    <div class="carrito-container">
+        {% for item in pedido.detalles %}
+        <div class="carrito-item">
+            <h2>{{ item.nombre_producto }}</h2>
+            <p>Cantidad: {{ item.cantidad }}</p>
+            <p>Precio unitario: ${{ "{:,}".format(item.precio_unitario) }}</p>
+            <p>Subtotal: ${{ "{:,}".format(item.precio_unitario * item.cantidad) }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="carrito-resumen">
+        <p><strong>Total pagado:</strong> ${{ "{:,}".format(pedido.total) }}</p>
+    </div>
+
+</body>
+</html>

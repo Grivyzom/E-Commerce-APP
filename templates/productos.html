@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Productos - ComercioTech</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1>Productos Disponibles</h1>
+    <div class="contenedor">
+        {% for producto in productos %}
+        <div class="card">
+            <img src="{{ url_for('static', filename=producto.imagen) }}" alt="{{ producto.nombre }}">
+            <h2>{{ producto.nombre }}</h2>
+            <p>${{ "{:,}".format(producto.precio) }}</p>
+            <button>Agregar al carrito</button>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

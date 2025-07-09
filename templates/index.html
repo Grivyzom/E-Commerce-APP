@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Productos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="navbar-left">
+            {% if session.get("usuario") %}
+            <strong>Bienvenido, {{ session["usuario"] }}</strong>
+            {% endif %}
+        </div>
+        <div class="navbar-right">
+            {% if session.get("usuario") %}
+            <a href="{{ url_for('ver_carrito') }}">🛒 Ver carrito</a>
+            <a href="{{ url_for('mis_pedidos') }}">📦 Mis pedidos</a>
+            <a href="{{ url_for('logout') }}" class="logout">Cerrar sesión</a>
+            {% else %}
+            <a href="{{ url_for('login') }}">Iniciar sesión</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <h1>Productos disponibles</h1>
+    <div class="contenedor">
+        {% for producto in productos %}
+        <div class="card">
+            <img src="{{ url_for('static', filename='img/' + producto.imagen_url) }}" alt="{{ producto.nombre }}">
+            <h2>{{ producto.nombre }}</h2>
+            <p>${{ "{:,.0f}".format(producto.precio|float) }}</p>
+            <a href="{{ url_for('agregar', producto_id=producto.id_producto) }}" class="boton">Agregar al carrito</a>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+
+</html>
+<footer class="footer">
+    <p>&copy; 2025 ComercioTech. Todos los derechos reservados.</p>
+</footer>
