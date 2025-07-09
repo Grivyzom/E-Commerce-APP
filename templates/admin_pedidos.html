@@ -9,7 +9,7 @@
 
 <div class="container mt-5">
     <h2 class="mb-4">📋 Panel de Administración - Pedidos</h2>
-    <a href="{{ url_for('index') }}" class="btn btn-secondary mb-3">← Volver al inicio</a>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary mb-3">← Volver al panel</a>
 
     <table class="table table-hover bg-white shadow-sm">
         <thead class="table-dark">
@@ -27,17 +27,26 @@
             <tr>
                 <td>#{{ pedido.id_pedido }}</td>
                 <td>{{ pedido.cliente }}</td>
-                <td>{{ pedido.fecha }}</td>
-                <td>${{ "{:,}".format(pedido.total) }}</td>
-                <td>{{ pedido.estado }}</td>
+                <td>{{ pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M') if pedido.fecha_pedido.strftime else pedido.fecha_pedido }}</td>
+                <td>${{ "{:,.0f}".format(pedido.total) }}</td>
+                <td>
+                    <span class="badge bg-primary">{{ pedido.estado }}</span>
+                </td>
                 <td>
                     <a href="{{ url_for('admin_ver_pedido', pedido_id=pedido.id_pedido) }}" class="btn btn-primary btn-sm">Ver</a>
-                    <a href="{{ url_for('admin_cambiar_estado', pedido_id=pedido.id) }}" class="btn btn-warning btn-sm">Cambiar estado</a>
+                    <a href="{{ url_for('admin_cambiar_estado', pedido_id=pedido.id_pedido) }}" class="btn btn-warning btn-sm">Cambiar estado</a>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    
+    {% if not pedidos %}
+    <div class="text-center py-5">
+        <h4>No hay pedidos registrados</h4>
+        <p class="text-muted">Los pedidos aparecerán aquí cuando los clientes realicen compras.</p>
+    </div>
+    {% endif %}
 </div>
 
 </body>

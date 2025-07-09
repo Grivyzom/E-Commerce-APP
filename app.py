@@ -349,6 +349,7 @@ def logout():
     flash("Sesión cerrada.")
     return redirect(url_for("index"))
 
+
 @app.route("/agregar/<int:producto_id>")
 def agregar(producto_id):
     if "user_id" not in session:
@@ -494,67 +495,6 @@ def vaciar_carrito():
     if "user_id" in session:
         redis_manager.vaciar_carrito(session["user_id"])
     return redirect(url_for("ver_carrito"))
-
-@app.route("/finalizar_compra")
-def finalizar_compra():
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-    
-    user_id = session["user_id"]
-    carrito = redis_manager.get_carrito(user_id)
-    
-    if not carrito:
-        return redirect(url_for("ver_carrito"))
-    
-    # Calcular total y crear pedido
-    total = 0
-    producto_ids = [pid.split(':')[1] for pid in carrito.keys()]
-    placeholders = ','.join(['%s'] * len(producto_ids))
-    
-    query = f"SELECT * FROM productos WHERE id_producto IN ({placeholders})"
-    productos = db.execute_query(query, producto_ids, fetch=True)
-    
-    # Insertar pedido
-    query_pedido = """
-    INSERT INTO pedidos (id_usuario, direccion_envio, total)
-    VALUES (%s, %s, %s)
-    """
-    
-    # Obtener dirección del usuario
-    query_user = "SELECT direccion FROM usuarios WHERE id_usuario = %s"
-    user_data = db.execute_query(query_user, (user_id,), fetch=True)
-    direccion = user_data[0]["direccion"] if user_data else "Dirección no especificada"
-    
-    # Calcular total
-    for producto in productos:
-        cantidad = carrito[f"producto:{producto['id_producto']}"]
-        total += float(producto["precio"]) * cantidad
-    
-    # Crear pedido
-    db.execute_query(query_pedido, (user_id, direccion, total))
-    
-    # Obtener ID del pedido recién creado
-    pedido_id = db.execute_query("SELECT LAST_INSERT_ID() as id", fetch=True)[0]["id"]
-    
-    # Insertar detalles del pedido
-    query_detalle = """
-    INSERT INTO detalles_pedido (id_pedido, id_producto, cantidad, precio_unitario)
-    VALUES (%s, %s, %s, %s)
-    """
-    
-    for producto in productos:
-        cantidad = carrito[f"producto:{producto['id_producto']}"]
-        db.execute_query(query_detalle, (
-            pedido_id,
-            producto["id_producto"],
-            cantidad,
-            float(producto["precio"])
-        ))
-    
-    # Vaciar carrito
-    redis_manager.vaciar_carrito(user_id)
-    
-    return render_template("finalizado.html")
 
 @app.route("/mis_pedidos")
 def mis_pedidos():
@@ -778,6 +718,119 @@ def admin_eliminar_producto(producto_id):
     flash("Producto eliminado exitosamente")
     return redirect(url_for("admin_productos"))
 
+@app.route("/finalizar_compra")
+def finalizar_compra():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    
+    user_id = session["user_id"]
+    carrito = redis_manager.get_carrito(user_id)
+    
+    if not carrito:
+        flash("Tu carrito está vacío")
+        return redirect(url_for("ver_carrito"))
+    
+    try:
+        # Obtener productos del carrito
+        if redis_manager.available:
+            producto_ids = [pid.split(':')[1] for pid in carrito.keys()]
+        else:
+            producto_ids = list(carrito.keys())
+        
+        if not producto_ids:
+            flash("Tu carrito está vacío")
+            return redirect(url_for("ver_carrito"))
+        
+        # Verificar que los productos existen
+        placeholders = ','.join(['%s'] * len(producto_ids))
+        query = f"SELECT * FROM productos WHERE id_producto IN ({placeholders})"
+        productos = db.execute_query(query, producto_ids, fetch=True)
+        
+        if not productos:
+            flash("Error: productos no encontrados")
+            return redirect(url_for("ver_carrito"))
+        
+        # Obtener dirección del usuario
+        query_user = "SELECT direccion FROM usuarios WHERE id_usuario = %s"
+        user_data = db.execute_query(query_user, (user_id,), fetch=True)
+        direccion = user_data[0]["direccion"] if user_data else "Dirección no especificada"
+        
+        # Calcular total
+        total = 0
+        for producto in productos:
+            if redis_manager.available:
+                cantidad = carrito[f"producto:{producto['id_producto']}"]
+            else:
+                cantidad = carrito[str(producto['id_producto'])]
+            total += float(producto["precio"]) * cantidad
+        
+        # Usar una conexión específica sin autocommit
+        config_transaction = DB_CONFIG.copy()
+        config_transaction['autocommit'] = False
+        
+        conn = mysql.connector.connect(**config_transaction)
+        cursor = conn.cursor(dictionary=True)
+        
+        try:
+            # 1. Insertar pedido
+            query_pedido = """
+            INSERT INTO pedidos (id_usuario, direccion_envio, total, estado)
+            VALUES (%s, %s, %s, 'Pendiente')
+            """
+            cursor.execute(query_pedido, (user_id, direccion, total))
+            
+            # 2. Obtener el ID del pedido
+            pedido_id = cursor.lastrowid
+            print(f"🆔 Pedido ID creado: {pedido_id}")
+            
+            if not pedido_id:
+                raise Exception("No se pudo obtener el ID del pedido")
+            
+            # 3. Insertar detalles del pedido
+            query_detalle = """
+            INSERT INTO detalles_pedido (id_pedido, id_producto, cantidad, precio_unitario)
+            VALUES (%s, %s, %s, %s)
+            """
+            
+            for producto in productos:
+                if redis_manager.available:
+                    cantidad = carrito[f"producto:{producto['id_producto']}"]
+                else:
+                    cantidad = carrito[str(producto['id_producto'])]
+                
+                print(f"📦 Insertando: pedido={pedido_id}, producto={producto['id_producto']}, cantidad={cantidad}")
+                
+                cursor.execute(query_detalle, (
+                    pedido_id,
+                    producto["id_producto"],
+                    cantidad,
+                    float(producto["precio"])
+                ))
+            
+            # 4. Confirmar todo
+            conn.commit()
+            print(f"✅ Pedido #{pedido_id} creado exitosamente")
+            
+            # 5. Vaciar carrito
+            redis_manager.vaciar_carrito(user_id)
+            
+            flash(f"¡Pedido #{pedido_id} creado exitosamente!")
+            
+            return render_template("finalizado.html")
+            
+        except Exception as e:
+            conn.rollback()
+            print(f"❌ Error en transacción: {e}")
+            raise e
+        finally:
+            cursor.close()
+            conn.close()
+        
+    except Exception as e:
+        flash(f"Error al procesar el pedido: {str(e)}")
+        print(f"❌ Error general: {e}")
+        return redirect(url_for("ver_carrito"))
+
 if __name__ == "__main__":
     print("🚀 Iniciando ComercioTech...")
     print(f"🔧 MySQL disponible: {'✅' if MYSQL_AVAILABLE else '❌'}")
@@ -791,6 +844,8 @@ if __name__ == "__main__":
     
     app.run(debug=True, host='0.0.0.0', port=5000)
     
+# MOVER ESTAS RUTAS ANTES DEL if __name__ == "__main__":
+
 @app.route("/admin/pedido/<int:pedido_id>")
 def admin_ver_pedido(pedido_id):
     if session.get("rol") != "admin":
@@ -840,3 +895,18 @@ def admin_cambiar_estado(pedido_id):
         return redirect(url_for("admin_ver_pedido", pedido_id=pedido_id))
     
     return redirect(url_for("admin_ver_pedido", pedido_id=pedido_id))
+
+# AQUÍ VA EL if __name__ == "__main__":
+if __name__ == "__main__":
+    print("🚀 Iniciando ComercioTech...")
+    print(f"🔧 MySQL disponible: {'✅' if MYSQL_AVAILABLE else '❌'}")
+    print(f"🔧 Redis disponible: {'✅' if REDIS_AVAILABLE else '❌'}")
+    
+    if not MYSQL_AVAILABLE:
+        print("📝 Usando archivos JSON como fallback para datos")
+    
+    if not REDIS_AVAILABLE:
+        print("📝 Usando sesiones Flask como fallback para cache")
+    
+    app.run(debug=True, host='0.0.0.0', port=5000)
+
