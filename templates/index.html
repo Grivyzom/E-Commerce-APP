@@ -1,46 +1,86 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Productos</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Productos</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
+  <!-- AOS -->
+  <link href="https://unpkg.com/aos@next/dist/aos.css" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
-
-<body>
-    <header class="navbar">
-        <div class="navbar-left">
-            {% if session.get("usuario") %}
-            <strong>Bienvenido, {{ session["usuario"] }}</strong>
-            {% endif %}
+<body class="bg-gray-100">
+    <header class="fixed top-0 left-0 w-full bg-white/70 backdrop-blur-md shadow-md z-50">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div class="text-lg font-semibold text-indigo-700">
+        {% if session.usuario %}
+            Bienvenido, {{ session.usuario }}
+        {% endif %}
         </div>
-        <div class="navbar-right">
-            {% if session.get("usuario") %}
-            <a href="{{ url_for('ver_carrito') }}">🛒 Ver carrito</a>
-            <a href="{{ url_for('mis_pedidos') }}">📦 Mis pedidos</a>
-            <a href="{{ url_for('logout') }}" class="logout">Cerrar sesión</a>
-            {% else %}
-            <a href="{{ url_for('login') }}">Iniciar sesión</a>
-            {% endif %}
+        <div class="space-x-4">
+        {% if session.usuario %}
+            <a href="{{ url_for('ver_carrito') }}"
+            class="inline-flex items-center space-x-1 text-indigo-600 hover:text-indigo-800 transition">
+            <span>🛒</span><span>Ver carrito</span>
+            </a>
+            <a href="{{ url_for('mis_pedidos') }}"
+            class="inline-flex items-center space-x-1 text-indigo-600 hover:text-indigo-800 transition">
+            <span>📦</span><span>Mis pedidos</span>
+            </a>
+            <a href="{{ url_for('logout') }}"
+            class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition">
+            Cerrar sesión
+            </a>
+        {% else %}
+            <a href="{{ url_for('login') }}"
+            class="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
+            Iniciar sesión
+            </a>
+        {% endif %}
         </div>
+    </nav>
     </header>
 
-    <h1>Productos disponibles</h1>
-    <div class="contenedor">
-        {% for producto in productos %}
-        <div class="card">
-            <img src="{{ url_for('static', filename='img/' + producto.imagen_url) }}" alt="{{ producto.nombre }}">
-            <h2>{{ producto.nombre }}</h2>
-            <p>${{ "{:,.0f}".format(producto.precio|float) }}</p>
-            <a href="{{ url_for('agregar', producto_id=producto.id_producto) }}" class="boton">Agregar al carrito</a>
-        </div>
-        {% endfor %}
-    </div>
-</body>
+<div class="h-20"></div>
 
-  <footer class="footer">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content" data-aos="zoom-in">
+      <h1>Potencia tu productividad con equipos de última generación</h1>
+      <p>Encuentra notebooks, periféricos y mucho más, con garantía y envío rápido.</p>
+      <a href="#productos" class="cta-button">Ver productos</a>
+    </div>
+  </section>
+
+  <!-- PRODUCTOS -->
+  <section id="productos" class="productos-seccion">
+    <h2 data-aos="fade-up">Productos disponibles</h2>
+    <div class="contenedor">
+      {% for producto in productos %}
+      <div class="card" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
+        <img src="{{ url_for('static', filename='img/' + producto.imagen_url) }}"
+             alt="{{ producto.nombre }}">
+        <h3>{{ producto.nombre }}</h3>
+        <p>${{ "{:,.0f}".format(producto.precio|float) }}</p>
+        <a href="{{ url_for('agregar', producto_id=producto.id_producto) }}"
+           class="boton">Agregar al carrito</a>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <footer class="footer" data-aos="fade-up">
     <p>&copy; 2025 ComercioTech. Todos los derechos reservados.</p>
   </footer>
+
+  <!-- AOS Script -->
+  <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+  <script>
+    AOS.init({ 
+      duration: 800,
+      once: true
+    });
+  </script>
+</body>
 </html>

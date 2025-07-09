@@ -1,98 +1,82 @@
-/* 1. Reset y variables */
-:root {
-  --color-primary: #6c63ff;
-  --color-bg-dark: #1f1f2e;
-  --color-card-bg: rgba(255,255,255,0.9);
-  --color-text: #333;
-  --gradient-1: #6c63ff;
-  --gradient-2: #9b8cff;
+/* ————————————————————————————————————————————————————— */
+/* 0. Scroll suave */
+html {
+  scroll-behavior: smooth;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* 2. Fondo animado */
-body {
-  min-height: 100vh;
-  /* degradado animado */
-  background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2));
-  background-size: 400% 400%;
-  animation: gradientBG 15s ease infinite;
-  color: var(--color-text);
-  font-family: 'Inter', sans-serif;
-  line-height: 1.6;
-}
-
-/* animación del degradado */
-@keyframes gradientBG {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* 3. Navbar */
-.navbar {
+/* 1. Hero */
+.hero {
+  height: calc(100vh - 64px);
+  background: linear-gradient(135deg, #4f46e5, #818cf8);
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(6px);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.navbar a {
-  margin-left: 1rem;
-  text-decoration: none;
-  color: var(--color-text);
-  font-weight: 500;
-  transition: color .2s;
-}
-
-.navbar a:hover {
-  color: var(--color-primary);
-}
-
-.navbar .logout {
-  color: #e63946;
-}
-
-/* 4. Títulos */
-h1 {
+  justify-content: center;
   text-align: center;
-  margin: 2rem 0;
-  font-size: 2.5rem;
+  color: #fff;
+  position: relative;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  backdrop-filter: brightness(0.7);
+}
+.hero-content {
+  position: relative;
+  max-width: 600px;
+  z-index: 1;
+}
+.hero-content h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+.hero-content p {
+  font-size: 1.125rem;
+  margin-bottom: 2rem;
+}
+.cta-button {
+  background: #fff;
+  color: #4f46e5;
+  padding: .75rem 1.75rem;
+  border-radius: .5rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform .2s, background .2s;
+}
+.cta-button:hover {
+  background: #f3f4f6;
+  transform: translateY(-2px);
+}
+
+/* 2. Sección productos */
+.productos-seccion {
+  background: #f9fafb;
+  padding: 4rem 2rem;
+}
+.productos-seccion h2 {
+  text-align: center;
+  font-size: 2.25rem;
   color: #222;
+  margin-bottom: 2rem;
 }
 
-/* 5. Contenedor de cards */
-.contenedor {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 2rem;
-  padding: 0 2rem 4rem;
-}
-
-/* 6. Card */
+/* 3. Cards refinadas */
 .card {
-  background: var(--color-card-bg);
+  background: #fff;
   border-radius: 1rem;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
   padding: 1.5rem;
   text-align: center;
   transition: transform .3s, box-shadow .3s;
+  opacity: 0; /* para AOS */
 }
-
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 16px 32px rgba(0,0,0,0.15);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
 }
 
+/* 4. Imagen de producto */
 .card img {
   width: 100%;
   height: auto;
@@ -100,192 +84,56 @@ h1 {
   margin-bottom: 1rem;
 }
 
-/* 7. Botón */
-.boton, .boton:hover {
-  display: inline-block;
-  padding: .75rem 1.5rem;
-  border-radius: .5rem;
-  text-decoration: none;
-  font-weight: 600;
-  transition: background .2s, transform .2s;
-}
-
-.boton {
-  background: var(--color-primary);
-  color: #fff;
-}
-
-.boton:hover {
-  background: #564dcf;
-  transform: translateY(-2px);
-}
-
-/* 8. Footer */
-.footer {
-  text-align: center;
-  padding: 2rem;
-  background: rgba(255,255,255,0.9);
-  font-size: .9rem;
-}
-
-/* ────────────────────────────────────────────────────────────────────── */
-/* 9. Carrito */
-/* Título y link "volver" */
-.titulo-carrito {
-  text-align: center;
-  font-size: 2.5rem;
-  margin: 2rem 0 0.5rem;
-  color: #222;
-}
-.volver-link {
-  display: inline-block;
-  margin: 0 2rem 2rem;
-  color: var(--color-primary);
-  font-weight: 500;
-  text-decoration: none;
-  transition: color .2s;
-}
-.volver-link:hover {
-  color: #564dcf;
-}
-
-/* Contenedor grid para items */
-.carrito-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  padding: 0 2rem 2rem;
-}
-
-/* Cada item */
-.carrito-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: var(--color-card-bg);
-  border-radius: 1rem;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-  padding: 1rem;
-  animation: fadeIn .4s ease both;
-  transition: transform .2s;
-}
-.carrito-item:hover {
-  transform: translateY(-3px);
-}
-
-/* Imagen del producto */
-.carrito-img {
-  width: 120px;
-  height: auto;
-  border-radius: .75rem;
-  object-fit: cover;
-}
-
-/* Info y controles */
-.carrito-info {
-  flex: 1;
-}
-.carrito-info h2 {
-  margin-bottom: .25rem;
-  font-size: 1.25rem;
-}
-.carrito-info p {
-  margin: .25rem 0;
-}
-.carrito-controles {
-  display: flex;
-  align-items: center;
-  gap: .5rem;
+/* 5. Tipos y botones de card */
+.card h3 {
   margin: .5rem 0;
-}
-
-/* Botones de cantidad */
-.btn-control {
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: .5rem;
-  background: var(--color-primary);
-  color: #fff;
   font-size: 1.25rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: transform .1s;
+  color: #111827;
 }
-.btn-control:hover {
-  transform: scale(1.1);
-}
-
-/* Cantidad */
-.cantidad {
-  min-width: 24px;
-  text-align: center;
-  font-weight: 600;
-}
-
-/* Botón "quitar" */
-.btn-quitar {
-  background: #e63946;
-  color: #fff;
-  border: none;
-  border-radius: .5rem;
-  padding: .5rem 1rem;
-  cursor: pointer;
-  transition: background .2s;
-}
-.btn-quitar:hover {
-  background: #c12e3c;
-}
-
-/* Resumen y botones finales */
-.carrito-resumen {
-  max-width: 480px;
-  margin: 2rem auto;
-  background: var(--color-card-bg);
-  padding: 1.5rem 2rem;
-  border-radius: 1rem;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-  text-align: center;
-}
-.carrito-resumen p {
-  font-size: 1.25rem;
+.card p {
+  color: #6b7280;
   margin-bottom: 1rem;
 }
-.resumen-botones {
-  display: flex;
-  justify-content: space-around;
-  gap: 1rem;
-}
-.btn-vaciar {
-  background: #e63946;
+.card .boton {
+  background: #4f46e5;
   color: #fff;
-  border: none;
-  border-radius: .5rem;
-  padding: .75rem 1.25rem;
-  cursor: pointer;
-  transition: background .2s;
 }
-.btn-vaciar:hover {
-  background: #c12e3c;
-}
-.btn-comprar {
-  display: inline-block;
-  background: var(--color-primary);
-  color: #fff;
-  text-decoration: none;
-  border-radius: .5rem;
-  padding: .75rem 1.25rem;
-  font-weight: 600;
-  transition: background .2s, transform .2s;
-}
-.btn-comprar:hover {
-  background: #564dcf;
-  transform: translateY(-2px);
+.card .boton:hover {
+  background: #3730a3;
 }
 
-/* Animación fade-in */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* 6. Grid responsive */
+.contenedor {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
-/* ────────────────────────────────────────────────────────────────────── */
+
+/* 7. Navbar refinado */
+.navbar {
+  padding: 1rem 2rem;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.navbar a {
+  color: #4b5563;
+}
+.navbar a:hover {
+  color: #4f46e5;
+}
+
+/* 8. Footer limpio */
+.footer {
+  background: #fff;
+  text-align: center;
+  padding: 2rem;
+  font-size: .9rem;
+  color: #6b7280;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+}
+/* ————————————————————————————————————————————————————— */
