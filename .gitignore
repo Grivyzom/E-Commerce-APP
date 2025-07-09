@@ -1,0 +1,7 @@
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+static/img
