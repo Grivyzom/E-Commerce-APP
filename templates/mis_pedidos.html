@@ -1,27 +1,173 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <title>Mis Pedidos</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .pedidos-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .pedido-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            padding: 25px;
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .pedido-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            text-decoration: none;
+            color: inherit;
+        }
+        .pedido-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .pedido-id {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #2c3e50;
+        }
+        .pedido-fecha {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .pedido-estado {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .estado-pendiente {
+            background-color: #f39c12;
+            color: white;
+        }
+        .estado-en-preparacion {
+            background-color: #3498db;
+            color: white;
+        }
+        .estado-enviado {
+            background-color: #9b59b6;
+            color: white;
+        }
+        .estado-entregado {
+            background-color: #27ae60;
+            color: white;
+        }
+        .estado-cancelado {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .pedido-productos {
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+        .pedido-total {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #27ae60;
+        }
+        .sin-pedidos {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .sin-pedidos-icon {
+            font-size: 80px;
+            color: #bdc3c7;
+            margin-bottom: 20px;
+        }
+        .btn-comprar-ahora {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-comprar-ahora:hover {
+            background-color: #2980b9;
+            text-decoration: none;
+            color: white;
+        }
+    </style>
 </head>
-
 <body>
-    <h1>🧾 Mis pedidos</h1>
-    <a href="{{ url_for('index') }}" class="volver-link">← Volver al inicio</a>
+    <header class="navbar">
+        <div class="navbar-left">
+            {% if session.get("usuario") %}
+            <strong>Bienvenido, {{ session["usuario"] }}</strong>
+            {% endif %}
+        </div>
+        <div class="navbar-right">
+            <a href="{{ url_for('index') }}">🏠 Inicio</a>
+            <a href="{{ url_for('ver_carrito') }}">🛒 Ver carrito</a>
+            <a href="{{ url_for('logout') }}" class="logout">Cerrar sesión</a>
+        </div>
+    </header>
 
-    {% if pedidos %}
-    {% for pedido in pedidos %}
-    <a href="{{ url_for('detalle_pedido', pedido_id=pedido.id) }}" class="pedido-card">
-        <p><strong>Pedido #{{ pedido.id }}</strong> - {{ pedido.fecha }}</p>
-        <p>Total: ${{ "{:,}".format(pedido.total) }}</p>
-    </a>
-    {% endfor %}
-    {% else %}
-    <p>No tienes pedidos aún.</p>
-    {% endif %}
+    <div class="pedidos-container">
+        <h1>📦 Mis Pedidos</h1>
+        <a href="{{ url_for('index') }}" class="volver-link">← Volver al inicio</a>
 
+        {% if pedidos %}
+            {% for pedido in pedidos %}
+            <a href="{{ url_for('detalle_pedido', pedido_id=pedido.id_pedido) }}" class="pedido-card">
+                <div class="pedido-header">
+                    <div>
+                        <div class="pedido-id">Pedido #{{ pedido.id_pedido }}</div>
+                        <div class="pedido-fecha">{{ pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M') if pedido.fecha_pedido.strftime else pedido.fecha_pedido }}</div>
+                    </div>
+                    <div class="pedido-estado estado-{{ pedido.estado.lower().replace(' ', '-') }}">
+                        {{ pedido.estado }}
+                    </div>
+                </div>
+                
+                <div class="pedido-productos">
+                    <strong>Productos:</strong> 
+                    {% if pedido.productos %}
+                        {{ pedido.productos }}
+                    {% else %}
+                        Múltiples productos
+                    {% endif %}
+                </div>
+                
+                <div class="pedido-total">
+                    Total: ${{ "{:,.0f}".format(pedido.total) }}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="sin-pedidos">
+                <div class="sin-pedidos-icon">📦</div>
+                <h2>No tienes pedidos aún</h2>
+                <p>¡Explora nuestros productos y realiza tu primera compra!</p>
+                <a href="{{ url_for('index') }}" class="btn-comprar-ahora">🛒 Empezar a comprar</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 ComercioTech. Todos los derechos reservados.</p>
+    </footer>
 </body>
-
 </html>

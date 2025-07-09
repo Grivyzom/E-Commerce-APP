@@ -1,1 +1,102 @@
-:v
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Compra Finalizada</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .exito-container {
+            text-align: center;
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .exito-icon {
+            font-size: 80px;
+            color: #27ae60;
+            margin-bottom: 20px;
+        }
+        .exito-titulo {
+            color: #27ae60;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        .exito-mensaje {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .botones-finalizacion {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn-accion {
+            padding: 12px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-principal {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-principal:hover {
+            background-color: #2980b9;
+        }
+        .btn-secundario {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .btn-secundario:hover {
+            background-color: #7f8c8d;
+        }
+        .info-adicional {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="exito-container">
+        <div class="exito-icon">✅</div>
+        
+        <h1 class="exito-titulo">¡Compra Exitosa!</h1>
+        
+        <div class="exito-mensaje">
+            <p>Tu pedido ha sido procesado correctamente y se encuentra en preparación.</p>
+            <p>En breve recibirás un correo electrónico con los detalles de tu compra y el seguimiento del envío.</p>
+        </div>
+
+        <div class="info-adicional">
+            <h3>📋 Próximos pasos:</h3>
+            <ul>
+                <li>📧 Revisa tu correo para confirmación del pedido</li>
+                <li>📦 Prepararemos tu pedido en 24-48 horas</li>
+                <li>🚛 Te notificaremos cuando esté en camino</li>
+                <li>🏠 Recibirás tu pedido en la dirección indicada</li>
+            </ul>
+        </div>
+
+        <div class="botones-finalizacion">
+            <a href="{{ url_for('mis_pedidos') }}" class="btn-accion btn-principal">📦 Ver mis pedidos</a>
+            <a href="{{ url_for('index') }}" class="btn-accion btn-secundario">🛒 Seguir comprando</a>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 ComercioTech. Gracias por tu compra!</p>
+    </footer>
+</body>
+</html>

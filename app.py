@@ -430,6 +430,44 @@ def incrementar(producto_id):
         redis_manager.agregar_al_carrito(session["user_id"], producto_id, 1)
     return redirect(url_for("ver_carrito"))
 
+@app.route("/pedido/<int:pedido_id>")
+def detalle_pedido(pedido_id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    
+    user_id = session["user_id"]
+    
+    # Obtener el pedido específico del usuario
+    query_pedido = """
+    SELECT p.*, u.nombre as cliente
+    FROM pedidos p
+    JOIN usuarios u ON p.id_usuario = u.id_usuario
+    WHERE p.id_pedido = %s AND p.id_usuario = %s
+    """
+    
+    pedidos = db.execute_query(query_pedido, (pedido_id, user_id), fetch=True)
+    
+    if not pedidos:
+        flash("Pedido no encontrado")
+        return redirect(url_for("mis_pedidos"))
+    
+    pedido = pedidos[0]
+    
+    # Obtener detalles del pedido
+    query_detalles = """
+    SELECT dp.*, pr.nombre as nombre_producto
+    FROM detalles_pedido dp
+    JOIN productos pr ON dp.id_producto = pr.id_producto
+    WHERE dp.id_pedido = %s
+    """
+    
+    detalles = db.execute_query(query_detalles, (pedido_id,), fetch=True)
+    pedido['detalles'] = detalles
+    
+    return render_template("detalle_pedido.html", pedido=pedido)
+
+
+
 @app.route("/disminuir/<int:producto_id>", methods=["POST"])
 def disminuir(producto_id):
     if "user_id" in session:
@@ -752,3 +790,53 @@ if __name__ == "__main__":
         print("📝 Usando sesiones Flask como fallback para cache")
     
     app.run(debug=True, host='0.0.0.0', port=5000)
+    
+@app.route("/admin/pedido/<int:pedido_id>")
+def admin_ver_pedido(pedido_id):
+    if session.get("rol") != "admin":
+        return redirect(url_for("index"))
+    
+    # Obtener pedido específico
+    query_pedido = """
+    SELECT p.*, u.nombre as cliente, u.email
+    FROM pedidos p
+    JOIN usuarios u ON p.id_usuario = u.id_usuario
+    WHERE p.id_pedido = %s
+    """
+    
+    pedidos = db.execute_query(query_pedido, (pedido_id,), fetch=True)
+    
+    if not pedidos:
+        flash("Pedido no encontrado")
+        return redirect(url_for("admin_pedidos"))
+    
+    pedido = pedidos[0]
+    
+    # Obtener detalles del pedido
+    query_detalles = """
+    SELECT dp.*, pr.nombre as nombre_producto
+    FROM detalles_pedido dp
+    JOIN productos pr ON dp.id_producto = pr.id_producto
+    WHERE dp.id_pedido = %s
+    """
+    
+    detalles = db.execute_query(query_detalles, (pedido_id,), fetch=True)
+    pedido['productos'] = detalles
+    
+    return render_template("admin_detalle_pedido.html", pedido=pedido)
+
+@app.route("/admin/pedido/<int:pedido_id>/cambiar-estado", methods=["GET", "POST"])
+def admin_cambiar_estado(pedido_id):
+    if session.get("rol") != "admin":
+        return redirect(url_for("index"))
+    
+    if request.method == "POST":
+        nuevo_estado = request.form["nuevo_estado"]
+        
+        query = "UPDATE pedidos SET estado = %s WHERE id_pedido = %s"
+        db.execute_query(query, (nuevo_estado, pedido_id))
+        
+        flash("Estado del pedido actualizado")
+        return redirect(url_for("admin_ver_pedido", pedido_id=pedido_id))
+    
+    return redirect(url_for("admin_ver_pedido", pedido_id=pedido_id))

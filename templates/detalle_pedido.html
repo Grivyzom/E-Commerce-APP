@@ -2,31 +2,248 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Detalle del pedido</title>
+    <title>Detalle del Pedido #{{ pedido.id_pedido }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .detalle-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .pedido-info {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+        .info-header {
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+        .pedido-titulo {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .info-valor {
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        .estado-badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+        .estado-pendiente {
+            background-color: #f39c12;
+            color: white;
+        }
+        .estado-en-preparacion {
+            background-color: #3498db;
+            color: white;
+        }
+        .estado-enviado {
+            background-color: #9b59b6;
+            color: white;
+        }
+        .estado-entregado {
+            background-color: #27ae60;
+            color: white;
+        }
+        .estado-cancelado {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .productos-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .producto-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border: 1px solid #ecf0f1;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background-color: #fafafa;
+        }
+        .producto-info {
+            flex-grow: 1;
+        }
+        .producto-nombre {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .producto-detalles {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .producto-subtotal {
+            font-weight: bold;
+            color: #27ae60;
+            font-size: 1.1em;
+        }
+        .total-section {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 25px;
+            text-align: center;
+        }
+        .total-texto {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .timeline {
+            margin-top: 30px;
+        }
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .timeline-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 0.8em;
+        }
+        .timeline-activo {
+            background-color: #27ae60;
+            color: white;
+        }
+        .timeline-inactivo {
+            background-color: #ecf0f1;
+            color: #bdc3c7;
+        }
+    </style>
 </head>
 <body>
-
-    <h1 class="titulo-carrito">Detalle del Pedido #{{ pedido.id }}</h1>
-    <a href="{{ url_for('mis_pedidos') }}" class="volver-link">← Volver a mis pedidos</a>
-
-    <p><strong>Fecha:</strong> {{ pedido.fecha }}</p>
-    <p><strong>Estado:</strong> {{ pedido.estado }}</p>
-
-    <div class="carrito-container">
-        {% for item in pedido.detalles %}
-        <div class="carrito-item">
-            <h2>{{ item.nombre_producto }}</h2>
-            <p>Cantidad: {{ item.cantidad }}</p>
-            <p>Precio unitario: ${{ "{:,}".format(item.precio_unitario) }}</p>
-            <p>Subtotal: ${{ "{:,}".format(item.precio_unitario * item.cantidad) }}</p>
+    <header class="navbar">
+        <div class="navbar-left">
+            {% if session.get("usuario") %}
+            <strong>Bienvenido, {{ session["usuario"] }}</strong>
+            {% endif %}
         </div>
-        {% endfor %}
+        <div class="navbar-right">
+            <a href="{{ url_for('index') }}">🏠 Inicio</a>
+            <a href="{{ url_for('ver_carrito') }}">🛒 Ver carrito</a>
+            <a href="{{ url_for('logout') }}" class="logout">Cerrar sesión</a>
+        </div>
+    </header>
+
+    <div class="detalle-container">
+        <h1 class="pedido-titulo">📦 Pedido #{{ pedido.id_pedido }}</h1>
+        <a href="{{ url_for('mis_pedidos') }}" class="volver-link">← Volver a mis pedidos</a>
+
+        <div class="pedido-info">
+            <div class="info-header">
+                <h2>Información del Pedido</h2>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Fecha del Pedido</div>
+                    <div class="info-valor">{{ pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M') if pedido.fecha_pedido.strftime else pedido.fecha_pedido }}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Estado</div>
+                    <div class="info-valor">
+                        <span class="estado-badge estado-{{ pedido.estado.lower().replace(' ', '-') }}">
+                            {{ pedido.estado }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Dirección de Envío</div>
+                    <div class="info-valor">{{ pedido.direccion_envio }}</div>
+                </div>
+            </div>
+
+            <!-- Timeline de estado -->
+            <div class="timeline">
+                <h3>Seguimiento del Pedido</h3>
+                <div class="timeline-item">
+                    <div class="timeline-icon timeline-activo">📝</div>
+                    <span>Pedido confirmado</span>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon {{ 'timeline-activo' if pedido.estado in ['En preparación', 'Enviado', 'Entregado'] else 'timeline-inactivo' }}">📦</div>
+                    <span>En preparación</span>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon {{ 'timeline-activo' if pedido.estado in ['Enviado', 'Entregado'] else 'timeline-inactivo' }}">🚛</div>
+                    <span>Enviado</span>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon {{ 'timeline-activo' if pedido.estado == 'Entregado' else 'timeline-inactivo' }}">✅</div>
+                    <span>Entregado</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="productos-section">
+            <h2>🛒 Productos del Pedido</h2>
+            
+            {% for detalle in pedido.detalles %}
+            <div class="producto-item">
+                <div class="producto-info">
+                    <div class="producto-nombre">{{ detalle.nombre_producto }}</div>
+                    <div class="producto-detalles">
+                        Cantidad: {{ detalle.cantidad }} | 
+                        Precio unitario: ${{ "{:,.0f}".format(detalle.precio_unitario) }}
+                    </div>
+                </div>
+                <div class="producto-subtotal">
+                    ${{ "{:,.0f}".format(detalle.precio_unitario * detalle.cantidad) }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="total-section">
+            <div class="total-texto">
+                Total Pagado: ${{ "{:,.0f}".format(pedido.total) }}
+            </div>
+        </div>
     </div>
 
-    <div class="carrito-resumen">
-        <p><strong>Total pagado:</strong> ${{ "{:,}".format(pedido.total) }}</p>
-    </div>
-
+    <footer class="footer">
+        <p>&copy; 2025 ComercioTech. Todos los derechos reservados.</p>
+    </footer>
 </body>
 </html>

@@ -25,13 +25,13 @@
         <tbody>
             {% for pedido in pedidos %}
             <tr>
-                <td>#{{ pedido.id }}</td>
+                <td>#{{ pedido.id_pedido }}</td>
                 <td>{{ pedido.cliente }}</td>
                 <td>{{ pedido.fecha }}</td>
                 <td>${{ "{:,}".format(pedido.total) }}</td>
                 <td>{{ pedido.estado }}</td>
                 <td>
-                    <a href="{{ url_for('admin_ver_pedido', pedido_id=pedido.id) }}" class="btn btn-primary btn-sm">Ver</a>
+                    <a href="{{ url_for('admin_ver_pedido', pedido_id=pedido.id_pedido) }}" class="btn btn-primary btn-sm">Ver</a>
                     <a href="{{ url_for('admin_cambiar_estado', pedido_id=pedido.id) }}" class="btn btn-warning btn-sm">Cambiar estado</a>
                 </td>
             </tr>
