@@ -1,0 +1,985 @@
+/* ===============================================
+   COMERCIOTECH THEME - CSS TEMPLATE PROFESIONAL
+   Archivo base para mantener consistencia visual
+   =============================================== */
+
+/* ===============================================
+   1. VARIABLES CSS GLOBALES
+   =============================================== */
+:root {
+    /* Colores principales */
+    --primary-color: #2c3e50;
+    --secondary-color: #34495e;
+    --accent-color: #3498db;
+    --success-color: #27ae60;
+    --warning-color: #f39c12;
+    --danger-color: #e74c3c;
+    --info-color: #17a2b8;
+    
+    /* Colores de fondo */
+    --light-bg: #ecf0f1;
+    --white-bg: #ffffff;
+    --dark-bg: #2c3e50;
+    
+    /* Colores de texto */
+    --text-primary: #2c3e50;
+    --text-secondary: #7f8c8d;
+    --text-muted: #95a5a6;
+    --text-light: #bdc3c7;
+    
+    /* Espaciado */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-xxl: 3rem;
+    
+    /* Sombras */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.2);
+    
+    /* Border radius */
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 30px;
+    
+    /* Transiciones */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    
+    /* Fuentes */
+    --font-primary: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-heading: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'Fira Code', 'Consolas', monospace;
+    
+    /* Tamaños de fuente */
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.25rem;
+    
+    /* Z-index levels */
+    --z-dropdown: 1000;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+    --z-fixed: 1030;
+}
+
+/* ===============================================
+   2. RESET Y BASE STYLES
+   =============================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+}
+
+body {
+    font-family: var(--font-primary);
+    line-height: 1.6;
+    color: var(--text-primary);
+    background-color: var(--light-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===============================================
+   3. TIPOGRAFÍA
+   =============================================== */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+}
+
+h1 { font-size: var(--text-4xl); }
+h2 { font-size: var(--text-3xl); }
+h3 { font-size: var(--text-2xl); }
+h4 { font-size: var(--text-xl); }
+h5 { font-size: var(--text-lg); }
+h6 { font-size: var(--text-base); }
+
+p {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-secondary);
+}
+
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+/* ===============================================
+   4. LAYOUT COMPONENTS
+   =============================================== */
+
+/* Container */
+.ct-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+.ct-container-fluid {
+    width: 100%;
+    padding: 0 var(--spacing-md);
+}
+
+/* Grid System */
+.ct-grid {
+    display: grid;
+    gap: var(--spacing-lg);
+}
+
+.ct-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.ct-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.ct-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+.ct-flex {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.ct-flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ct-flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ===============================================
+   5. COMPONENTES DE INTERFAZ
+   =============================================== */
+
+/* Cards */
+.ct-card {
+    background: var(--white-bg);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: var(--spacing-xl);
+    transition: all var(--transition-normal);
+}
+
+.ct-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.ct-card-header {
+    background: var(--primary-color);
+    color: white;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    margin: calc(-1 * var(--spacing-xl)) calc(-1 * var(--spacing-xl)) var(--spacing-lg);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    font-size: var(--text-lg);
+    font-weight: 600;
+}
+
+/* Buttons */
+.ct-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-base);
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.ct-btn-primary {
+    background: var(--accent-color);
+    color: white;
+}
+
+.ct-btn-primary:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.ct-btn-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.ct-btn-success:hover {
+    background: #219a52;
+    transform: translateY(-1px);
+}
+
+.ct-btn-warning {
+    background: var(--warning-color);
+    color: white;
+}
+
+.ct-btn-warning:hover {
+    background: #e67e22;
+    transform: translateY(-1px);
+}
+
+.ct-btn-danger {
+    background: var(--danger-color);
+    color: white;
+}
+
+.ct-btn-danger:hover {
+    background: #c0392b;
+    transform: translateY(-1px);
+}
+
+.ct-btn-outline {
+    background: transparent;
+    border: 2px solid var(--accent-color);
+    color: var(--accent-color);
+}
+
+.ct-btn-outline:hover {
+    background: var(--accent-color);
+    color: white;
+}
+
+.ct-btn-sm {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--text-sm);
+}
+
+.ct-btn-lg {
+    padding: var(--spacing-lg) var(--spacing-xl);
+    font-size: var(--text-lg);
+}
+
+/* Forms */
+.ct-form-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.ct-label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.ct-input {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: 2px solid #e9ecef;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-base);
+    transition: all var(--transition-fast);
+    background-color: #f8f9fa;
+}
+
+.ct-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    background-color: white;
+}
+
+.ct-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.ct-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+}
+
+/* Tables */
+.ct-table {
+    width: 100%;
+    background: var(--white-bg);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.ct-table thead {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.ct-table th {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: var(--text-sm);
+    letter-spacing: 0.5px;
+}
+
+.ct-table td {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid #dee2e6;
+}
+
+.ct-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Badges */
+.ct-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ct-badge-primary {
+    background-color: rgba(52, 152, 219, 0.1);
+    color: var(--accent-color);
+    border: 1px solid rgba(52, 152, 219, 0.2);
+}
+
+.ct-badge-success {
+    background-color: rgba(39, 174, 96, 0.1);
+    color: var(--success-color);
+    border: 1px solid rgba(39, 174, 96, 0.2);
+}
+
+.ct-badge-warning {
+    background-color: rgba(243, 156, 18, 0.1);
+    color: var(--warning-color);
+    border: 1px solid rgba(243, 156, 18, 0.2);
+}
+
+.ct-badge-danger {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: var(--danger-color);
+    border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+/* Status específicos para pedidos */
+.ct-badge-pendiente {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.ct-badge-en-preparacion {
+    background-color: #cce5ff;
+    color: #004085;
+    border: 1px solid #74b9ff;
+}
+
+.ct-badge-enviado {
+    background-color: #e2d5f1;
+    color: #5a2d82;
+    border: 1px solid #a29bfe;
+}
+
+.ct-badge-entregado {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #00b894;
+}
+
+.ct-badge-cancelado {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #fd79a8;
+}
+
+/* ===============================================
+   6. HEADER Y NAVEGACIÓN
+   =============================================== */
+.ct-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: var(--spacing-lg) 0;
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-fixed);
+}
+
+.ct-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ct-logo {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: white;
+    text-decoration: none;
+}
+
+.ct-logo:hover {
+    color: white;
+    text-decoration: none;
+}
+
+.ct-nav-links {
+    display: flex;
+    list-style: none;
+    gap: var(--spacing-lg);
+    margin: 0;
+}
+
+.ct-nav-link {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.ct-nav-link:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    text-decoration: none;
+}
+
+.ct-breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: var(--spacing-md);
+}
+
+.ct-breadcrumb-item {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.ct-breadcrumb-item + .ct-breadcrumb-item::before {
+    content: "›";
+    font-weight: bold;
+    color: white;
+    margin: 0 var(--spacing-sm);
+}
+
+.ct-breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+}
+
+.ct-breadcrumb-item.active {
+    color: white;
+}
+
+/* ===============================================
+   7. SIDEBAR Y DASHBOARD
+   =============================================== */
+.ct-sidebar {
+    background: var(--white-bg);
+    width: 280px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-xl);
+    overflow-y: auto;
+    z-index: var(--z-fixed);
+}
+
+.ct-sidebar-header {
+    margin-bottom: var(--spacing-xl);
+    text-align: center;
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid #dee2e6;
+}
+
+.ct-sidebar-menu {
+    list-style: none;
+}
+
+.ct-sidebar-item {
+    margin-bottom: var(--spacing-sm);
+}
+
+.ct-sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.ct-sidebar-link:hover,
+.ct-sidebar-link.active {
+    background: var(--accent-color);
+    color: white;
+    text-decoration: none;
+}
+
+.ct-main-content {
+    margin-left: 280px;
+    padding: var(--spacing-xl);
+    min-height: 100vh;
+}
+
+/* ===============================================
+   8. ALERTS Y NOTIFICATIONS
+   =============================================== */
+.ct-alert {
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
+    border-left: 4px solid;
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.ct-alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border-left-color: var(--success-color);
+}
+
+.ct-alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border-left-color: var(--warning-color);
+}
+
+.ct-alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left-color: var(--danger-color);
+}
+
+.ct-alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-left-color: var(--info-color);
+}
+
+/* Notification Toast */
+.ct-toast {
+    position: fixed;
+    top: var(--spacing-lg);
+    right: var(--spacing-lg);
+    background: var(--white-bg);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xl);
+    padding: var(--spacing-lg);
+    min-width: 300px;
+    z-index: var(--z-tooltip);
+    transform: translateX(100%);
+    transition: transform var(--transition-normal);
+}
+
+.ct-toast.show {
+    transform: translateX(0);
+}
+
+/* ===============================================
+   9. MODALS
+   =============================================== */
+.ct-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: var(--z-modal);
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-normal);
+}
+
+.ct-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.ct-modal-content {
+    background: var(--white-bg);
+    border-radius: var(--radius-md);
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.9);
+    transition: transform var(--transition-normal);
+}
+
+.ct-modal.show .ct-modal-content {
+    transform: scale(1);
+}
+
+.ct-modal-header {
+    background: var(--primary-color);
+    color: white;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ct-modal-body {
+    padding: var(--spacing-xl);
+}
+
+.ct-modal-footer {
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+}
+
+/* ===============================================
+   10. LOADING STATES
+   =============================================== */
+.ct-loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: ct-spin 1s linear infinite;
+}
+
+.ct-loading-lg {
+    width: 40px;
+    height: 40px;
+    border-width: 4px;
+}
+
+@keyframes ct-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.ct-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: ct-skeleton 1.5s infinite;
+    border-radius: var(--radius-sm);
+}
+
+@keyframes ct-skeleton {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* ===============================================
+   11. UTILITY CLASSES
+   =============================================== */
+
+/* Spacing */
+.ct-m-0 { margin: 0 !important; }
+.ct-m-1 { margin: var(--spacing-xs) !important; }
+.ct-m-2 { margin: var(--spacing-sm) !important; }
+.ct-m-3 { margin: var(--spacing-md) !important; }
+.ct-m-4 { margin: var(--spacing-lg) !important; }
+.ct-m-5 { margin: var(--spacing-xl) !important; }
+
+.ct-p-0 { padding: 0 !important; }
+.ct-p-1 { padding: var(--spacing-xs) !important; }
+.ct-p-2 { padding: var(--spacing-sm) !important; }
+.ct-p-3 { padding: var(--spacing-md) !important; }
+.ct-p-4 { padding: var(--spacing-lg) !important; }
+.ct-p-5 { padding: var(--spacing-xl) !important; }
+
+/* Text */
+.ct-text-center { text-align: center !important; }
+.ct-text-left { text-align: left !important; }
+.ct-text-right { text-align: right !important; }
+
+.ct-text-primary { color: var(--text-primary) !important; }
+.ct-text-secondary { color: var(--text-secondary) !important; }
+.ct-text-muted { color: var(--text-muted) !important; }
+.ct-text-white { color: white !important; }
+
+.ct-text-xs { font-size: var(--text-xs) !important; }
+.ct-text-sm { font-size: var(--text-sm) !important; }
+.ct-text-lg { font-size: var(--text-lg) !important; }
+.ct-text-xl { font-size: var(--text-xl) !important; }
+
+.ct-font-bold { font-weight: 700 !important; }
+.ct-font-semibold { font-weight: 600 !important; }
+.ct-font-medium { font-weight: 500 !important; }
+
+/* Display */
+.ct-d-none { display: none !important; }
+.ct-d-block { display: block !important; }
+.ct-d-flex { display: flex !important; }
+.ct-d-grid { display: grid !important; }
+
+/* Position */
+.ct-position-relative { position: relative !important; }
+.ct-position-absolute { position: absolute !important; }
+.ct-position-fixed { position: fixed !important; }
+
+/* Width */
+.ct-w-100 { width: 100% !important; }
+.ct-w-75 { width: 75% !important; }
+.ct-w-50 { width: 50% !important; }
+.ct-w-25 { width: 25% !important; }
+
+/* Background */
+.ct-bg-primary { background-color: var(--primary-color) !important; }
+.ct-bg-success { background-color: var(--success-color) !important; }
+.ct-bg-warning { background-color: var(--warning-color) !important; }
+.ct-bg-danger { background-color: var(--danger-color) !important; }
+.ct-bg-light { background-color: var(--light-bg) !important; }
+.ct-bg-white { background-color: var(--white-bg) !important; }
+
+/* ===============================================
+   12. RESPONSIVE DESIGN
+   =============================================== */
+@media (max-width: 1200px) {
+    .ct-container {
+        max-width: 960px;
+    }
+}
+
+@media (max-width: 992px) {
+    .ct-container {
+        max-width: 720px;
+    }
+    
+    .ct-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .ct-sidebar {
+        transform: translateX(-100%);
+        transition: transform var(--transition-normal);
+    }
+    
+    .ct-sidebar.open {
+        transform: translateX(0);
+    }
+    
+    .ct-main-content {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .ct-container {
+        max-width: 540px;
+    }
+    
+    .ct-grid-3,
+    .ct-grid-2 {
+        grid-template-columns: 1fr;
+    }
+    
+    .ct-flex {
+        flex-direction: column;
+    }
+    
+    .ct-card {
+        padding: var(--spacing-lg);
+    }
+    
+    .ct-modal-content {
+        width: 95%;
+        margin: var(--spacing-md);
+    }
+    
+    .ct-navbar {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+    
+    .ct-nav-links {
+        flex-direction: column;
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .ct-container {
+        max-width: 100%;
+        padding: 0 var(--spacing-sm);
+    }
+    
+    h1 { font-size: var(--text-3xl); }
+    h2 { font-size: var(--text-2xl); }
+    h3 { font-size: var(--text-xl); }
+    
+    .ct-btn {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: var(--text-sm);
+    }
+    
+    .ct-toast {
+        left: var(--spacing-sm);
+        right: var(--spacing-sm);
+        min-width: auto;
+    }
+}
+
+/* ===============================================
+   13. ANIMACIONES Y EFECTOS
+   =============================================== */
+
+/* Hover effects */
+.ct-hover-lift {
+    transition: transform var(--transition-normal);
+}
+
+.ct-hover-lift:hover {
+    transform: translateY(-4px);
+}
+
+.ct-hover-scale {
+    transition: transform var(--transition-normal);
+}
+
+.ct-hover-scale:hover {
+    transform: scale(1.05);
+}
+
+/* Fade animations */
+.ct-fade-in {
+    animation: ct-fadeIn 0.5s ease-in;
+}
+
+@keyframes ct-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ct-slide-in-left {
+    animation: ct-slideInLeft 0.5s ease-out;
+}
+
+@keyframes ct-slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Pulse effect */
+.ct-pulse {
+    animation: ct-pulse 2s infinite;
+}
+
+@keyframes ct-pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* ===============================================
+   14. DARK MODE SUPPORT (OPCIONAL)
+   =============================================== */
+@media (prefers-color-scheme: dark) {
+    .ct-auto-dark {
+        --light-bg: #1a1a1a;
+        --white-bg: #2d2d2d;
+        --text-primary: #ffffff;
+        --text-secondary: #b3b3b3;
+        --text-muted: #808080;
+    }
+    
+    .ct-auto-dark .ct-card {
+        background: var(--white-bg);
+        color: var(--text-primary);
+    }
+    
+    .ct-auto-dark .ct-input {
+        background-color: #3d3d3d;
+        border-color: #4d4d4d;
+        color: var(--text-primary);
+    }
+}
+
+/* ===============================================
+   15. PRINT STYLES
+   =============================================== */
+@media print {
+    .ct-no-print {
+        display: none !important;
+    }
+    
+    .ct-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .ct-btn {
+        display: none;
+    }
+    
+    body {
+        font-size: 12pt;
+        line-height: 1.4;
+    }
+}
