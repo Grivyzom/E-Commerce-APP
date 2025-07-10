@@ -2,172 +2,1331 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Mis Pedidos</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Pedidos - ComercioTech</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/comerciotech-theme.css') }}">
     <style>
-        .pedidos-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
+        body {
+            font-family: 'Inter', var(--font-primary);
+            background: var(--light-bg);
+            overflow-x: hidden;
         }
+
+        /* Header mejorado */
+        .ct-main-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(52, 152, 219, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: var(--z-fixed);
+            padding: 1rem 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .ct-navbar-brand {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ct-navbar-brand:hover {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .ct-navbar-brand i {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .ct-nav-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .ct-user-welcome {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .ct-nav-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 2px solid transparent;
+        }
+
+        .ct-nav-btn-outline {
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .ct-nav-btn-outline:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .ct-nav-btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .ct-nav-btn-danger:hover {
+            background: #c0392b;
+            color: white;
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        /* Hero Section de Pedidos */
+        .pedidos-hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pedidos-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.05"><circle cx="30" cy="30" r="4"/></g></svg>');
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
+        }
+
+        .pedidos-hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .pedidos-breadcrumb {
+            margin-bottom: 1.5rem;
+        }
+
+        .pedidos-breadcrumb .breadcrumb {
+            background: transparent;
+            justify-content: center;
+            margin: 0;
+        }
+
+        .pedidos-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+            content: "›";
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0 0.5rem;
+        }
+
+        .pedidos-breadcrumb .breadcrumb-item a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+        }
+
+        .pedidos-breadcrumb .breadcrumb-item.active {
+            color: white;
+        }
+
+        .pedidos-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .pedidos-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        /* Estadísticas de pedidos */
+        .pedidos-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 120px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Contenido Principal */
+        .pedidos-main {
+            padding: 3rem 0;
+            min-height: 70vh;
+        }
+
+        /* Filtros y búsqueda */
+        .pedidos-filters {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-label {
+            display: block;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .btn-clear-filters {
+            background: var(--warning-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-clear-filters:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+        }
+
+        /* Cards de pedidos */
+        .pedidos-lista {
+            display: grid;
+            gap: 1.5rem;
+        }
+
         .pedido-card {
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            padding: 25px;
-            display: block;
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            transition: all 0.4s ease;
+            position: relative;
             text-decoration: none;
             color: inherit;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
+
         .pedido-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            text-decoration: none;
             color: inherit;
+            text-decoration: none;
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
         }
+
         .pedido-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 1rem;
         }
+
+        .pedido-info-left {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
         .pedido-id {
-            font-weight: bold;
-            font-size: 1.2em;
-            color: #2c3e50;
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
+
         .pedido-fecha {
-            color: #7f8c8d;
-            font-size: 0.9em;
+            font-size: 0.9rem;
+            opacity: 0.8;
         }
+
         .pedido-estado {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 600;
             text-transform: uppercase;
-        }
-        .estado-pendiente {
-            background-color: #f39c12;
-            color: white;
-        }
-        .estado-en-preparacion {
-            background-color: #3498db;
-            color: white;
-        }
-        .estado-enviado {
-            background-color: #9b59b6;
-            color: white;
-        }
-        .estado-entregado {
-            background-color: #27ae60;
-            color: white;
-        }
-        .estado-cancelado {
-            background-color: #e74c3c;
-            color: white;
-        }
-        .pedido-productos {
-            color: #555;
-            margin-bottom: 10px;
-            font-size: 0.95em;
-        }
-        .pedido-total {
-            font-weight: bold;
-            font-size: 1.1em;
-            color: #27ae60;
-        }
-        .sin-pedidos {
+            letter-spacing: 0.5px;
             text-align: center;
-            padding: 60px 20px;
+        }
+
+        /* Estados específicos */
+        .estado-pendiente {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeaa7;
+        }
+
+        .estado-en-preparacion {
+            background: #cce5ff;
+            color: #004085;
+            border: 2px solid #74b9ff;
+        }
+
+        .estado-enviado {
+            background: #e2d5f1;
+            color: #5a2d82;
+            border: 2px solid #a29bfe;
+        }
+
+        .estado-entregado {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #00b894;
+        }
+
+        .estado-cancelado {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #fd79a8;
+        }
+
+        .pedido-body {
+            padding: 1.5rem;
+        }
+
+        .productos-resumen {
+            margin-bottom: 1rem;
+        }
+
+        .productos-titulo {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .productos-lista-breve {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .pedido-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .pedido-total {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--success-color);
+        }
+
+        .pedido-acciones {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-ver-detalle {
+            background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-ver-detalle:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(52, 152, 219, 0.3);
+            text-decoration: none;
+        }
+
+        .btn-recomprar {
+            background: transparent;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-recomprar:hover {
+            background: var(--accent-color);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Sin pedidos */
+        .pedidos-vacio {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .vacio-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .vacio-icon {
+            font-size: 6rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            opacity: 0.5;
+        }
+
+        .vacio-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .vacio-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .btn-empezar-comprar {
+            background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-empezar-comprar:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(52, 152, 219, 0.3);
+            text-decoration: none;
+        }
+
+        /* Timeline de estado */
+        .pedido-timeline {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            gap: 0.75rem;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .timeline-activo {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .timeline-inactivo {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+
+        .timeline-texto {
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        .ct-footer {
+            background: var(--primary-color);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .ct-footer-content {
+            margin-bottom: 1rem;
+        }
+
+        .ct-footer-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        /* Paginación */
+        .pedidos-pagination {
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            margin-top: 2rem;
         }
-        .sin-pedidos-icon {
-            font-size: 80px;
-            color: #bdc3c7;
-            margin-bottom: 20px;
+
+        .pagination {
+            justify-content: center;
+            margin: 0;
         }
-        .btn-comprar-ahora {
-            background-color: #3498db;
+
+        .page-link {
+            color: var(--accent-color);
+            border-color: #dee2e6;
+            margin: 0 0.125rem;
+            border-radius: 8px;
+        }
+
+        .page-link:hover {
             color: white;
-            padding: 12px 25px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .page-item.active .page-link {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        /* Loading */
+        .pedidos-loading {
+            text-align: center;
+            padding: 3rem 0;
+        }
+
+        .loading-spinner {
             display: inline-block;
-            margin-top: 20px;
-            transition: background-color 0.3s ease;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(52, 152, 219, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--accent-color);
+            animation: spin 1s ease-in-out infinite;
         }
-        .btn-comprar-ahora:hover {
-            background-color: #2980b9;
-            text-decoration: none;
-            color: white;
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .pedidos-title {
+                font-size: 2rem;
+            }
+
+            .pedidos-stats {
+                flex-direction: column;
+                gap: 1rem;
+                max-width: 300px;
+            }
+
+            .filter-row {
+                flex-direction: column;
+            }
+
+            .filter-group {
+                min-width: auto;
+            }
+
+            .pedido-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .pedido-footer {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .ct-nav-user {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .pedidos-main {
+                padding: 2rem 0;
+            }
+
+            .pedido-card {
+                border-radius: 15px;
+            }
+
+            .pedido-header {
+                padding: 1rem;
+            }
+
+            .pedido-body {
+                padding: 1rem;
+            }
+        }
+
+        /* Animaciones */
+        .pedido-card {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .pedido-card:nth-child(1) { animation-delay: 0.1s; }
+        .pedido-card:nth-child(2) { animation-delay: 0.2s; }
+        .pedido-card:nth-child(3) { animation-delay: 0.3s; }
+        .pedido-card:nth-child(4) { animation-delay: 0.4s; }
+        .pedido-card:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Efecto de hover en timeline */
+        .pedido-timeline:hover .timeline-activo {
+            animation: pulse 0.6s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
-    <header class="navbar">
-        <div class="navbar-left">
-            {% if session.get("usuario") %}
-            <strong>Bienvenido, {{ session["usuario"] }}</strong>
-            {% endif %}
-        </div>
-        <div class="navbar-right">
-            <a href="{{ url_for('index') }}">🏠 Inicio</a>
-            <a href="{{ url_for('ver_carrito') }}">🛒 Ver carrito</a>
-            <a href="{{ url_for('logout') }}" class="logout">Cerrar sesión</a>
+    <!-- Header -->
+    <header class="ct-main-header">
+        <div class="container">
+            <nav class="d-flex justify-content-between align-items-center">
+                <a href="{{ url_for('index') }}" class="ct-navbar-brand">
+                    <i class="fas fa-laptop-code"></i>
+                    ComercioTech
+                </a>
+
+                <div class="ct-nav-user">
+                    {% if session.usuario %}
+                        <p class="ct-user-welcome mb-0">
+                            <i class="fas fa-user-circle me-2"></i>
+                            Bienvenido, <strong>{{ session.usuario }}</strong>
+                        </p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="{{ url_for('index') }}" class="ct-nav-btn ct-nav-btn-outline">
+                                <i class="fas fa-home"></i>
+                                <span>Inicio</span>
+                            </a>
+                            <a href="{{ url_for('ver_carrito') }}" class="ct-nav-btn ct-nav-btn-outline">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>Carrito</span>
+                            </a>
+                            <a href="{{ url_for('logout') }}" class="ct-nav-btn ct-nav-btn-danger">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Salir</span>
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </nav>
         </div>
     </header>
 
-    <div class="pedidos-container">
-        <h1>📦 Mis Pedidos</h1>
-        <a href="{{ url_for('index') }}" class="volver-link">← Volver al inicio</a>
+    <!-- Hero Section de Pedidos -->
+    <section class="pedidos-hero">
+        <div class="container">
+            <div class="pedidos-hero-content">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="pedidos-breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ url_for('index') }}">
+                                <i class="fas fa-home"></i> Inicio
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active">Mis Pedidos</li>
+                    </ol>
+                </nav>
 
-        {% if pedidos %}
-            {% for pedido in pedidos %}
-            <a href="{{ url_for('detalle_pedido', pedido_id=pedido.id_pedido) }}" class="pedido-card">
-                <div class="pedido-header">
-                    <div>
-                        <div class="pedido-id">Pedido #{{ pedido.id_pedido }}</div>
-                        <div class="pedido-fecha">{{ pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M') if pedido.fecha_pedido.strftime else pedido.fecha_pedido }}</div>
+                <h1 class="pedidos-title">
+                    <i class="fas fa-box me-3"></i>
+                    Mis Pedidos
+                </h1>
+                <p class="pedidos-subtitle">
+                    Revisa el estado y detalles de todas tus compras
+                </p>
+
+                <!-- Estadísticas rápidas -->
+                <div class="pedidos-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalPedidos">{{ pedidos|length if pedidos else 0 }}</div>
+                        <div class="stat-label">Total</div>
                     </div>
-                    <div class="pedido-estado estado-{{ pedido.estado.lower().replace(' ', '-') }}">
-                        {{ pedido.estado }}
+                    <div class="stat-item">
+                        <div class="stat-number" id="pedidosPendientes">
+                            {% set pendientes = pedidos|selectattr('estado', 'equalto', 'Pendiente')|list|length if pedidos else 0 %}
+                            {{ pendientes }}
+                        </div>
+                        <div class="stat-label">Pendientes</div>
                     </div>
-                </div>
-                
-                <div class="pedido-productos">
-                    <strong>Productos:</strong> 
-                    {% if pedido.productos %}
-                        {{ pedido.productos }}
-                    {% else %}
-                        Múltiples productos
-                    {% endif %}
-                </div>
-                
-                <div class="pedido-total">
-                    Total: ${{ "{:,.0f}".format(pedido.total) }}
+                    <div class="stat-item">
+                        <div class="stat-number" id="pedidosEntregados">
+                            {% set entregados = pedidos|selectattr('estado', 'equalto', 'Entregado')|list|length if pedidos else 0 %}
+                            {{ entregados }}
+                        </div>
+                        <div class="stat-label">Entregados</div>
+                    </div>
                 </div>
             </div>
-            {% endfor %}
-        {% else %}
-            <div class="sin-pedidos">
-                <div class="sin-pedidos-icon">📦</div>
-                <h2>No tienes pedidos aún</h2>
-                <p>¡Explora nuestros productos y realiza tu primera compra!</p>
-                <a href="{{ url_for('index') }}" class="btn-comprar-ahora">🛒 Empezar a comprar</a>
-            </div>
-        {% endif %}
+        </div>
+    </section>
+
+    <!-- Contenido Principal -->
+    <main class="pedidos-main">
+        <div class="container">
+            {% if pedidos %}
+                <!-- Filtros y búsqueda -->
+                <div class="pedidos-filters">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label class="filter-label">
+                                <i class="fas fa-search me-1"></i>
+                                Buscar pedidos
+                            </label>
+                            <input type="text" class="filter-input" id="buscarPedidos" 
+                                   placeholder="Buscar por ID o productos...">
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">
+                                <i class="fas fa-filter me-1"></i>
+                                Estado
+                            </label>
+                            <select class="filter-input" id="filtroEstado">
+                                <option value="">Todos los estados</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="en-preparacion">En Preparación</option>
+                                <option value="enviado">Enviado</option>
+                                <option value="entregado">Entregado</option>
+                                <option value="cancelado">Cancelado</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">
+                                <i class="fas fa-calendar me-1"></i>
+                                Período
+                            </label>
+                            <select class="filter-input" id="filtroPeriodo">
+                                <option value="">Todos</option>
+                                <option value="ultima-semana">Última semana</option>
+                                <option value="ultimo-mes">Último mes</option>
+                                <option value="ultimos-3-meses">Últimos 3 meses</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button class="btn-clear-filters" onclick="limpiarFiltros()">
+                                <i class="fas fa-times me-1"></i>
+                                Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de pedidos -->
+                <div class="pedidos-lista" id="pedidosLista">
+                    {% for pedido in pedidos %}
+                    <div class="pedido-card" data-pedido-id="{{ pedido.id_pedido }}" 
+                         data-estado="{{ pedido.estado.lower().replace(' ', '-') }}"
+                         data-fecha="{{ pedido.fecha_pedido }}">
+                        
+                        <div class="pedido-header">
+                            <div class="pedido-info-left">
+                                <div class="pedido-id">
+                                    <i class="fas fa-receipt me-2"></i>
+                                    Pedido #{{ pedido.id_pedido }}
+                                </div>
+                                <div class="pedido-fecha">
+                                    <i class="fas fa-calendar-alt me-1"></i>
+                                    {{ pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M') if pedido.fecha_pedido.strftime else pedido.fecha_pedido }}
+                                </div>
+                            </div>
+                            <div class="pedido-estado estado-{{ pedido.estado.lower().replace(' ', '-') }}">
+                                {{ pedido.estado }}
+                            </div>
+                        </div>
+
+                        <div class="pedido-body">
+                            <div class="productos-resumen">
+                                <div class="productos-titulo">
+                                    <i class="fas fa-box me-1"></i>
+                                    Productos
+                                </div>
+                                <div class="productos-lista-breve">
+                                    {% if pedido.productos %}
+                                        {{ pedido.productos }}
+                                    {% else %}
+                                        {% if pedido.detalles %}
+                                            {% for detalle in pedido.detalles[:2] %}
+                                                {{ detalle.cantidad }}x {{ detalle.nombre_producto }}
+                                                {%- if not loop.last %}, {% endif %}
+                                            {% endfor %}
+                                            {% if pedido.detalles|length > 2 %}
+                                                y {{ pedido.detalles|length - 2 }} más...
+                                            {% endif %}
+                                        {% else %}
+                                            Múltiples productos
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Timeline de estado -->
+                            <div class="pedido-timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-icon timeline-activo">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span class="timeline-texto">Pedido confirmado</span>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-icon {{ 'timeline-activo' if pedido.estado in ['En preparación', 'Enviado', 'Entregado'] else 'timeline-inactivo' }}">
+                                        <i class="fas fa-cog"></i>
+                                    </div>
+                                    <span class="timeline-texto">En preparación</span>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-icon {{ 'timeline-activo' if pedido.estado in ['Enviado', 'Entregado'] else 'timeline-inactivo' }}">
+                                        <i class="fas fa-truck"></i>
+                                    </div>
+                                    <span class="timeline-texto">Enviado</span>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-icon {{ 'timeline-activo' if pedido.estado == 'Entregado' else 'timeline-inactivo' }}">
+                                        <i class="fas fa-home"></i>
+                                    </div>
+                                    <span class="timeline-texto">Entregado</span>
+                                </div>
+                            </div>
+
+                            <div class="pedido-footer">
+                                <div class="pedido-total">
+                                    ${{ "{:,.0f}".format(pedido.total) }}
+                                </div>
+                                <div class="pedido-acciones">
+                                    <a href="{{ url_for('detalle_pedido', pedido_id=pedido.id_pedido) }}" 
+                                       class="btn-ver-detalle">
+                                        <i class="fas fa-eye"></i>
+                                        Ver Detalles
+                                    </a>
+                                    {% if pedido.estado == 'Entregado' %}
+                                    <a href="#" class="btn-recomprar" onclick="recomprarPedido({{ pedido.id_pedido }})">
+                                        <i class="fas fa-redo"></i>
+                                        Recomprar
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Paginación -->
+                {% if pedidos|length > 10 %}
+                <div class="pedidos-pagination">
+                    <nav aria-label="Navegación de pedidos">
+                        <ul class="pagination" id="pedidosPagination">
+                            <!-- La paginación se generará dinámicamente -->
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+
+            {% else %}
+                <!-- Sin pedidos -->
+                <div class="pedidos-vacio">
+                    <div class="vacio-content">
+                        <div class="vacio-icon">
+                            <i class="fas fa-box-open"></i>
+                        </div>
+                        <h2 class="vacio-title">No tienes pedidos aún</h2>
+                        <p class="vacio-subtitle">
+                            ¡Explora nuestro catálogo de productos tecnológicos y realiza tu primera compra!
+                            Te aseguramos la mejor calidad y servicio.
+                        </p>
+                        <a href="{{ url_for('index') }}" class="btn-empezar-comprar">
+                            <i class="fas fa-shopping-cart me-2"></i>
+                            Empezar a Comprar
+                        </a>
+
+                        <!-- Beneficios para nuevos clientes -->
+                        <div class="mt-4">
+                            <div class="row text-center">
+                                <div class="col-md-4 mb-3">
+                                    <i class="fas fa-shipping-fast text-primary mb-2" style="font-size: 2rem;"></i>
+                                    <h6>Envío Gratis</h6>
+                                    <small class="text-muted">En compras sobre $50.000</small>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <i class="fas fa-shield-alt text-success mb-2" style="font-size: 2rem;"></i>
+                                    <h6>Garantía Oficial</h6>
+                                    <small class="text-muted">En todos nuestros productos</small>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <i class="fas fa-headset text-info mb-2" style="font-size: 2rem;"></i>
+                                    <h6>Soporte 24/7</h6>
+                                    <small class="text-muted">Atención personalizada</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <!-- Loading State -->
+    <div class="pedidos-loading" id="pedidosLoading" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p class="mt-3 text-muted">Cargando pedidos...</p>
     </div>
 
-    <footer class="footer">
-        <p>&copy; 2025 ComercioTech. Todos los derechos reservados.</p>
+    <!-- Footer -->
+    <footer class="ct-footer">
+        <div class="container">
+            <div class="ct-footer-content">
+                <div class="ct-footer-brand">
+                    <i class="fas fa-laptop-code me-2"></i>
+                    ComercioTech
+                </div>
+                <p>&copy; 2025 ComercioTech. Todos los derechos reservados.</p>
+            </div>
+        </div>
     </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Variables globales
+        let pedidosOriginales = [];
+        let pedidosFiltrados = [];
+        let paginaActual = 1;
+        const pedidosPorPagina = 5;
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarPedidos();
+            configurarEventos();
+            animarEntrada();
+        });
+
+        function inicializarPedidos() {
+            // Obtener todos los pedidos del DOM
+            const pedidosElements = document.querySelectorAll('.pedido-card');
+            pedidosOriginales = Array.from(pedidosElements).map(el => ({
+                elemento: el,
+                id: el.dataset.pedidoId,
+                estado: el.dataset.estado,
+                fecha: new Date(el.dataset.fecha),
+                texto: el.textContent.toLowerCase()
+            }));
+            
+            pedidosFiltrados = [...pedidosOriginales];
+            mostrarPedidos();
+        }
+
+        function configurarEventos() {
+            // Filtro de búsqueda
+            document.getElementById('buscarPedidos').addEventListener('input', function() {
+                aplicarFiltros();
+            });
+
+            // Filtro de estado
+            document.getElementById('filtroEstado').addEventListener('change', function() {
+                aplicarFiltros();
+            });
+
+            // Filtro de período
+            document.getElementById('filtroPeriodo').addEventListener('change', function() {
+                aplicarFiltros();
+            });
+        }
+
+        function aplicarFiltros() {
+            const busqueda = document.getElementById('buscarPedidos').value.toLowerCase();
+            const estado = document.getElementById('filtroEstado').value;
+            const periodo = document.getElementById('filtroPeriodo').value;
+
+            pedidosFiltrados = pedidosOriginales.filter(pedido => {
+                // Filtro de búsqueda
+                const coincideBusqueda = !busqueda || 
+                    pedido.texto.includes(busqueda) || 
+                    pedido.id.includes(busqueda);
+
+                // Filtro de estado
+                const coincideEstado = !estado || pedido.estado === estado;
+
+                // Filtro de período
+                let coincidePeriodo = true;
+                if (periodo) {
+                    const ahora = new Date();
+                    const fechaPedido = pedido.fecha;
+                    
+                    switch (periodo) {
+                        case 'ultima-semana':
+                            const unaSemanaAtras = new Date(ahora.getTime() - 7 * 24 * 60 * 60 * 1000);
+                            coincidePeriodo = fechaPedido >= unaSemanaAtras;
+                            break;
+                        case 'ultimo-mes':
+                            const unMesAtras = new Date(ahora.getFullYear(), ahora.getMonth() - 1, ahora.getDate());
+                            coincidePeriodo = fechaPedido >= unMesAtras;
+                            break;
+                        case 'ultimos-3-meses':
+                            const tresMesesAtras = new Date(ahora.getFullYear(), ahora.getMonth() - 3, ahora.getDate());
+                            coincidePeriodo = fechaPedido >= tresMesesAtras;
+                            break;
+                    }
+                }
+
+                return coincideBusqueda && coincideEstado && coincidePeriodo;
+            });
+
+            paginaActual = 1;
+            mostrarPedidos();
+            actualizarContadores();
+        }
+
+        function mostrarPedidos() {
+            const lista = document.getElementById('pedidosLista');
+            
+            // Ocultar todos los pedidos
+            pedidosOriginales.forEach(pedido => {
+                pedido.elemento.style.display = 'none';
+            });
+
+            // Calcular pedidos para la página actual
+            const inicio = (paginaActual - 1) * pedidosPorPagina;
+            const fin = inicio + pedidosPorPagina;
+            const pedidosPagina = pedidosFiltrados.slice(inicio, fin);
+
+            // Mostrar pedidos de la página actual
+            pedidosPagina.forEach((pedido, index) => {
+                pedido.elemento.style.display = 'block';
+                pedido.elemento.style.animationDelay = `${index * 0.1}s`;
+            });
+
+            // Generar paginación
+            generarPaginacion();
+
+            // Mostrar mensaje si no hay resultados
+            if (pedidosFiltrados.length === 0) {
+                mostrarMensajeSinResultados();
+            }
+        }
+
+        function generarPaginacion() {
+            const totalPaginas = Math.ceil(pedidosFiltrados.length / pedidosPorPagina);
+            const paginationElement = document.getElementById('pedidosPagination');
+            
+            if (!paginationElement || totalPaginas <= 1) {
+                return;
+            }
+
+            let html = '';
+
+            // Botón anterior
+            html += `
+                <li class="page-item ${paginaActual === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="cambiarPagina(${paginaActual - 1})">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            `;
+
+            // Números de página
+            for (let i = 1; i <= totalPaginas; i++) {
+                if (i === 1 || i === totalPaginas || (i >= paginaActual - 2 && i <= paginaActual + 2)) {
+                    html += `
+                        <li class="page-item ${i === paginaActual ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="cambiarPagina(${i})">${i}</a>
+                        </li>
+                    `;
+                } else if (i === paginaActual - 3 || i === paginaActual + 3) {
+                    html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                }
+            }
+
+            // Botón siguiente
+            html += `
+                <li class="page-item ${paginaActual === totalPaginas ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="cambiarPagina(${paginaActual + 1})">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            `;
+
+            paginationElement.innerHTML = html;
+        }
+
+        function cambiarPagina(nuevaPagina) {
+            const totalPaginas = Math.ceil(pedidosFiltrados.length / pedidosPorPagina);
+            
+            if (nuevaPagina >= 1 && nuevaPagina <= totalPaginas) {
+                paginaActual = nuevaPagina;
+                mostrarPedidos();
+                
+                // Scroll suave hacia arriba
+                document.querySelector('.pedidos-main').scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('buscarPedidos').value = '';
+            document.getElementById('filtroEstado').value = '';
+            document.getElementById('filtroPeriodo').value = '';
+            
+            pedidosFiltrados = [...pedidosOriginales];
+            paginaActual = 1;
+            mostrarPedidos();
+            actualizarContadores();
+            
+            mostrarNotificacion('Filtros limpiados', 'info');
+        }
+
+        function actualizarContadores() {
+            // Actualizar contadores en el hero
+            const total = pedidosFiltrados.length;
+            const pendientes = pedidosFiltrados.filter(p => p.estado === 'pendiente').length;
+            const entregados = pedidosFiltrados.filter(p => p.estado === 'entregado').length;
+
+            document.getElementById('totalPedidos').textContent = total;
+            document.getElementById('pedidosPendientes').textContent = pendientes;
+            document.getElementById('pedidosEntregados').textContent = entregados;
+        }
+
+        function mostrarMensajeSinResultados() {
+            const lista = document.getElementById('pedidosLista');
+            if (pedidosFiltrados.length === 0) {
+                lista.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-search" style="font-size: 4rem; color: var(--text-muted); opacity: 0.5; margin-bottom: 1rem;"></i>
+                        <h4 style="color: var(--text-secondary);">No se encontraron pedidos</h4>
+                        <p class="text-muted">Intenta ajustar los filtros de búsqueda</p>
+                        <button class="btn-clear-filters" onclick="limpiarFiltros()">
+                            <i class="fas fa-refresh me-1"></i>
+                            Limpiar Filtros
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function recomprarPedido(pedidoId) {
+            // Mostrar confirmación
+            if (confirm('¿Deseas agregar los productos de este pedido a tu carrito?')) {
+                mostrarNotificacion('Agregando productos al carrito...', 'info');
+                
+                // Simular agregado al carrito (en implementación real, hacer petición AJAX)
+                setTimeout(() => {
+                    mostrarNotificacion('¡Productos agregados al carrito exitosamente!', 'success');
+                }, 1500);
+            }
+        }
+
+        function animarEntrada() {
+            // Animar estadísticas
+            const stats = document.querySelectorAll('.stat-number');
+            stats.forEach((stat, index) => {
+                const target = parseInt(stat.textContent);
+                let current = 0;
+                const increment = target / 30;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    stat.textContent = Math.floor(current);
+                }, 50 + (index * 20));
+            });
+        }
+
+        function mostrarNotificacion(mensaje, tipo = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `position-fixed top-0 end-0 m-3 alert alert-${tipo === 'success' ? 'success' : tipo === 'error' ? 'danger' : 'info'} alert-dismissible fade show`;
+            notification.style.zIndex = '9999';
+            notification.innerHTML = `
+                <i class="fas fa-${tipo === 'success' ? 'check-circle' : tipo === 'error' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 5000);
+        }
+
+        // Funcionalidad de carga dinámica (para integración con Redis)
+        function cargarPedidosDesdeServidor() {
+            const loading = document.getElementById('pedidosLoading');
+            const main = document.querySelector('.pedidos-main');
+            
+            loading.style.display = 'block';
+            main.style.display = 'none';
+            
+            // Simular carga desde servidor (implementar con fetch real)
+            setTimeout(() => {
+                loading.style.display = 'none';
+                main.style.display = 'block';
+                
+                // Aquí se procesarían los datos del servidor
+                inicializarPedidos();
+            }, 1500);
+        }
+
+        // Atajos de teclado
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + F para enfocar búsqueda
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('buscarPedidos').focus();
+            }
+            
+            // Escape para limpiar filtros
+            if (e.key === 'Escape') {
+                limpiarFiltros();
+            }
+            
+            // Flechas para navegación de páginas
+            if (e.key === 'ArrowLeft') {
+                cambiarPagina(paginaActual - 1);
+            } else if (e.key === 'ArrowRight') {
+                cambiarPagina(paginaActual + 1);
+            }
+        });
+
+        // Auto-refresh cada 30 segundos (opcional)
+        setInterval(function() {
+            // En implementación real, verificar nuevos pedidos
+            console.log('Verificando actualizaciones...');
+        }, 30000);
+
+        // Mejorar experiencia táctil en móviles
+        if ('ontouchstart' in window) {
+            document.querySelectorAll('.pedido-card').forEach(card => {
+                card.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.98)';
+                });
+                
+                card.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                });
+            });
+        }
+    </script>
 </body>
 </html>

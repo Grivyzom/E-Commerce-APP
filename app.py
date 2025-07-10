@@ -322,6 +322,9 @@ def vaciar_carrito():
 
 @app.route("/finalizar_compra")
 def finalizar_compra():
+    """
+    Finalizar compra con invalidación de cache Redis
+    """
     if "user_id" not in session:
         return redirect(url_for("login"))
     
@@ -402,11 +405,52 @@ def finalizar_compra():
             conn.commit()
             print(f"✅ Pedido #{pedido_id} creado exitosamente")
             
+            # 🎯 MEJORADO: Invalidar caches relacionados con pedidos
+            try:
+                # Limpiar cache de pedidos del usuario
+                redis_manager.invalidar_cache_pedidos_usuario(user_id)
+                
+                # Limpiar estadísticas del usuario
+                redis_manager.limpiar_cache_pedidos_usuario(user_id)
+                
+                # Crear notificación
+                redis_manager.notificar_cambio_estado_pedido(pedido_id, user_id, "Pendiente")
+                
+                print(f"🔄 Cache invalidado correctamente para usuario {user_id}")
+                
+            except Exception as cache_error:
+                print(f"⚠️ Error invalidando cache (no crítico): {cache_error}")
+            
             # 🎯 MEJORADO: Vaciar carrito después de compra exitosa
             redis_manager.vaciar_carrito(user_id)
             
+            # Cachear el nuevo pedido inmediatamente para mejor UX
+            try:
+                nuevo_pedido = {
+                    "id_pedido": pedido_id,
+                    "fecha_pedido": datetime.now(),
+                    "direccion_envio": direccion,
+                    "total": total,
+                    "estado": "Pendiente",
+                    "productos": ", ".join([f"{carrito[str(p['id_producto'])]}x {p['nombre']}" for p in productos]),
+                    "detalles": [
+                        {
+                            "id_producto": p["id_producto"],
+                            "nombre_producto": p["nombre"],
+                            "cantidad": carrito[str(p['id_producto'])],
+                            "precio_unitario": float(p["precio"])
+                        } for p in productos
+                    ]
+                }
+                
+                # Cachear el detalle del nuevo pedido
+                redis_manager.cache_detalle_pedido(pedido_id, user_id, nuevo_pedido)
+                
+            except Exception as cache_error:
+                print(f"⚠️ Error cacheando nuevo pedido: {cache_error}")
+            
             flash(f"¡Pedido #{pedido_id} creado exitosamente!", "success")
-            return render_template("finalizado.html")
+            return render_template("finalizado.html", pedido_id=pedido_id)
             
         except Exception as e:
             conn.rollback()
@@ -420,6 +464,323 @@ def finalizar_compra():
         flash(f"Error al procesar el pedido: {str(e)}", "error")
         print(f"❌ Error general: {e}")
         return redirect(url_for("ver_carrito"))
+
+
+@app.route("/cancelar_pedido/<int:pedido_id>", methods=["POST"])
+def cancelar_pedido(pedido_id):
+    """
+    Cancelar un pedido (solo si está en estado Pendiente)
+    """
+    if "user_id" not in session:
+        return jsonify({"error": "No autorizado"}), 401
+    
+    user_id = session["user_id"]
+    
+    try:
+        # Verificar que el pedido pertenece al usuario y se puede cancelar
+        query_verificar = """
+        SELECT id_pedido, estado FROM pedidos 
+        WHERE id_pedido = %s AND id_usuario = %s AND estado = 'Pendiente'
+        """
+        
+        pedido = db.execute_query(query_verificar, (pedido_id, user_id), fetch=True)
+        
+        if not pedido:
+            return jsonify({"error": "Pedido no encontrado o no se puede cancelar"}), 400
+        
+        # Actualizar estado del pedido
+        query_cancelar = """
+        UPDATE pedidos 
+        SET estado = 'Cancelado' 
+        WHERE id_pedido = %s AND id_usuario = %s
+        """
+        
+        result = db.execute_query(query_cancelar, (pedido_id, user_id))
+        
+        if result:
+            # Invalidar caches relacionados
+            redis_manager.invalidar_cache_pedidos_usuario(user_id)
+            redis_manager.invalidar_cache_detalle_pedido(pedido_id, user_id)
+            
+            # Crear notificación de cancelación
+            redis_manager.notificar_cambio_estado_pedido(pedido_id, user_id, "Cancelado")
+            
+            return jsonify({
+                "success": True,
+                "mensaje": "Pedido cancelado exitosamente"
+            })
+        else:
+            return jsonify({"error": "No se pudo cancelar el pedido"}), 500
+        
+    except Exception as e:
+        print(f"❌ Error cancelando pedido: {e}")
+        return jsonify({"error": "Error interno del servidor"}), 500
+
+# ==========================================
+# NUEVA RUTA PARA NOTIFICACIONES
+# ==========================================
+
+@app.route("/api/notificaciones")
+def api_notificaciones():
+    """
+    Obtener notificaciones del usuario
+    """
+    if "user_id" not in session:
+        return jsonify({"error": "No autorizado"}), 401
+    
+    user_id = session["user_id"]
+    
+    try:
+        notificaciones = redis_manager.obtener_notificaciones_usuario(user_id, limit=20)
+        
+        return jsonify({
+            "notificaciones": notificaciones,
+            "total": len(notificaciones)
+        })
+        
+    except Exception as e:
+        print(f"❌ Error obteniendo notificaciones: {e}")
+        return jsonify({"error": "Error interno"}), 500
+
+@app.route("/api/notificaciones/marcar_leida/<int:pedido_id>", methods=["POST"])
+def marcar_notificacion_leida(pedido_id):
+    """
+    Marcar una notificación como leída
+    """
+    if "user_id" not in session:
+        return jsonify({"error": "No autorizado"}), 401
+    
+    user_id = session["user_id"]
+    
+    try:
+        # Actualizar notificación en Redis
+        notif_key = f"order_notification:{user_id}:{pedido_id}"
+        notif_data = redis_manager.client.get(notif_key)
+        
+        if notif_data:
+            notificacion = json.loads(notif_data)
+            notificacion["leida"] = True
+            redis_manager.client.setex(notif_key, 86400, json.dumps(notificacion))
+            
+            return jsonify({"success": True})
+        else:
+            return jsonify({"error": "Notificación no encontrada"}), 404
+        
+    except Exception as e:
+        print(f"❌ Error marcando notificación: {e}")
+        return jsonify({"error": "Error interno"}), 500
+
+# ==========================================
+# MÉTRICAS Y ESTADÍSTICAS AVANZADAS
+# ==========================================
+
+@app.route("/admin/api/metricas_pedidos")
+def admin_metricas_pedidos():
+    """
+    Métricas avanzadas de pedidos para administradores
+    """
+    if session.get("rol") != "admin":
+        return jsonify({"error": "No autorizado"}), 403
+    
+    try:
+        # Métricas de base de datos
+        query_stats = """
+        SELECT 
+            COUNT(*) as total_pedidos,
+            COUNT(CASE WHEN estado = 'Pendiente' THEN 1 END) as pendientes,
+            COUNT(CASE WHEN estado = 'En preparación' THEN 1 END) as en_preparacion,
+            COUNT(CASE WHEN estado = 'Enviado' THEN 1 END) as enviados,
+            COUNT(CASE WHEN estado = 'Entregado' THEN 1 END) as entregados,
+            COUNT(CASE WHEN estado = 'Cancelado' THEN 1 END) as cancelados,
+            SUM(CASE WHEN estado != 'Cancelado' THEN total ELSE 0 END) as ventas_total,
+            AVG(CASE WHEN estado != 'Cancelado' THEN total ELSE NULL END) as ticket_promedio,
+            COUNT(CASE WHEN DATE(fecha_pedido) = CURDATE() THEN 1 END) as pedidos_hoy
+        FROM pedidos
+        """
+        
+        stats_db = db.execute_query(query_stats, fetch=True)
+        
+        # Métricas de Redis
+        redis_stats = redis_manager.get_metricas_pedidos()
+        
+        # Pedidos por mes (últimos 6 meses)
+        query_mensual = """
+        SELECT 
+            DATE_FORMAT(fecha_pedido, '%Y-%m') as mes,
+            COUNT(*) as cantidad,
+            SUM(CASE WHEN estado != 'Cancelado' THEN total ELSE 0 END) as ventas
+        FROM pedidos 
+        WHERE fecha_pedido >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+        GROUP BY DATE_FORMAT(fecha_pedido, '%Y-%m')
+        ORDER BY mes DESC
+        """
+        
+        stats_mensual = db.execute_query(query_mensual, fetch=True)
+        
+        # Top productos más vendidos
+        query_top_productos = """
+        SELECT 
+            pr.nombre,
+            SUM(dp.cantidad) as total_vendido,
+            SUM(dp.cantidad * dp.precio_unitario) as ingresos
+        FROM detalles_pedido dp
+        JOIN productos pr ON dp.id_producto = pr.id_producto
+        JOIN pedidos p ON dp.id_pedido = p.id_pedido
+        WHERE p.estado != 'Cancelado'
+        GROUP BY pr.id_producto, pr.nombre
+        ORDER BY total_vendido DESC
+        LIMIT 10
+        """
+        
+        top_productos = db.execute_query(query_top_productos, fetch=True)
+        
+        return jsonify({
+            "estadisticas_generales": stats_db[0] if stats_db else {},
+            "metricas_redis": redis_stats,
+            "tendencia_mensual": stats_mensual,
+            "top_productos": top_productos,
+            "timestamp": datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error obteniendo métricas: {e}")
+        return jsonify({"error": str(e)}), 500
+
+# ==========================================
+# OPTIMIZACIÓN DE CONSULTAS AUTOMÁTICA
+# ==========================================
+
+@app.route("/admin/api/optimizar_cache", methods=["POST"])
+def admin_optimizar_cache():
+    """
+    Optimización manual del cache Redis
+    """
+    if session.get("rol") != "admin":
+        return jsonify({"error": "No autorizado"}), 403
+    
+    try:
+        # Configurar TTL automático
+        redis_manager.configurar_expiracion_automatica()
+        
+        # Limpiar datos expirados
+        resultado_limpieza = redis_manager.limpiar_datos_expirados()
+        
+        # Obtener métricas después de optimización
+        metricas = redis_manager.get_metricas_pedidos()
+        
+        return jsonify({
+            "success": True,
+            "mensaje": "Cache optimizado exitosamente",
+            "limpieza": resultado_limpieza,
+            "metricas_actuales": metricas
+        })
+        
+    except Exception as e:
+        print(f"❌ Error optimizando cache: {e}")
+        return jsonify({"error": str(e)}), 500
+
+# ==========================================
+# WEBHOOK PARA ACTUALIZACIONES DE ESTADO
+# ==========================================
+
+@app.route("/webhook/estado_pedido", methods=["POST"])
+def webhook_estado_pedido():
+    """
+    Webhook para actualizar estado de pedidos desde sistemas externos
+    """
+    try:
+        data = request.get_json()
+        
+        if not data or not all(k in data for k in ["pedido_id", "nuevo_estado", "api_key"]):
+            return jsonify({"error": "Datos incompletos"}), 400
+        
+        # Verificar API key (en producción usar algo más seguro)
+        if data["api_key"] != "webhook_key_comerciotech_2025":
+            return jsonify({"error": "API key inválida"}), 401
+        
+        pedido_id = data["pedido_id"]
+        nuevo_estado = data["nuevo_estado"]
+        
+        # Estados válidos
+        estados_validos = ["Pendiente", "En preparación", "Enviado", "Entregado", "Cancelado"]
+        if nuevo_estado not in estados_validos:
+            return jsonify({"error": "Estado inválido"}), 400
+        
+        # Actualizar estado en base de datos
+        query_update = """
+        UPDATE pedidos 
+        SET estado = %s 
+        WHERE id_pedido = %s
+        """
+        
+        result = db.execute_query(query_update, (nuevo_estado, pedido_id))
+        
+        if result:
+            # Obtener usuario del pedido para invalidar cache
+            query_user = "SELECT id_usuario FROM pedidos WHERE id_pedido = %s"
+            user_result = db.execute_query(query_user, (pedido_id,), fetch=True)
+            
+            if user_result:
+                user_id = user_result[0]["id_usuario"]
+                
+                # Invalidar caches
+                redis_manager.invalidar_cache_pedidos_usuario(user_id)
+                redis_manager.invalidar_cache_detalle_pedido(pedido_id, user_id)
+                
+                # Crear notificación
+                redis_manager.notificar_cambio_estado_pedido(pedido_id, user_id, nuevo_estado)
+                
+                print(f"🔄 Estado actualizado via webhook: Pedido {pedido_id} -> {nuevo_estado}")
+                
+                return jsonify({
+                    "success": True,
+                    "mensaje": f"Estado actualizado a {nuevo_estado}",
+                    "pedido_id": pedido_id
+                })
+            else:
+                return jsonify({"error": "Pedido no encontrado"}), 404
+        else:
+            return jsonify({"error": "No se pudo actualizar el estado"}), 500
+        
+    except Exception as e:
+        print(f"❌ Error en webhook: {e}")
+        return jsonify({"error": "Error interno"}), 500
+
+# ==========================================
+# TAREA EN SEGUNDO PLANO PARA LIMPIEZA
+# ==========================================
+
+import threading
+import time
+
+def tarea_limpieza_automatica():
+    """
+    Tarea que se ejecuta en segundo plano para limpiar cache expirado
+    """
+    while True:
+        try:
+            time.sleep(3600)  # Ejecutar cada hora
+            print("🧹 Iniciando limpieza automática de cache...")
+            
+            redis_manager.configurar_expiracion_automatica()
+            resultado = redis_manager.limpiar_datos_expirados()
+            
+            print(f"🧹 Limpieza completada: {resultado}")
+            
+        except Exception as e:
+            print(f"❌ Error en limpieza automática: {e}")
+
+# Iniciar tarea de limpieza al arrancar la aplicación
+def iniciar_tareas_segundo_plano():
+    """
+    Iniciar tareas en segundo plano
+    """
+    if redis_manager.available:
+        limpieza_thread = threading.Thread(target=tarea_limpieza_automatica, daemon=True)
+        limpieza_thread.start()
+        print("🚀 Tarea de limpieza automática iniciada")
+
+# Llamar al final del archivo principal
 
 # ==========================================
 # RUTAS DE ADMINISTRACIÓN (MEJORADAS)
