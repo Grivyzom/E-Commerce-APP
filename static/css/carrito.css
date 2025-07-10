@@ -1,0 +1,888 @@
+/* ===============================================
+   CARRITO CSS - ComercioTech
+   Archivo: /static/css/carrito.css
+   =============================================== */
+
+/* Header */
+.ct-main-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(52, 152, 219, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-fixed);
+    padding: 1rem 0;
+    box-shadow: var(--shadow-sm);
+}
+
+.ct-navbar-brand {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ct-navbar-brand:hover {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.ct-navbar-brand i {
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.ct-nav-user {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ct-user-welcome {
+    font-weight: 500;
+    color: var(--primary-color);
+}
+
+.ct-nav-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 2px solid transparent;
+}
+
+.ct-nav-btn-outline {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.ct-nav-btn-outline:hover {
+    background: var(--accent-color);
+    color: white;
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+.ct-nav-btn-danger {
+    background: var(--danger-color);
+    color: white;
+}
+
+.ct-nav-btn-danger:hover {
+    background: #c0392b;
+    color: white;
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+/* ===============================================
+   HERO SECTION DEL CARRITO
+   =============================================== */
+.carrito-hero {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 2rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.carrito-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.05"><circle cx="30" cy="30" r="4"/></g></svg>');
+    animation: float 20s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(30px, -30px) rotate(120deg); }
+    66% { transform: translate(-20px, 20px) rotate(240deg); }
+}
+
+.carrito-hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.carrito-breadcrumb {
+    margin-bottom: 1.5rem;
+}
+
+.carrito-breadcrumb .breadcrumb {
+    background: transparent;
+    justify-content: center;
+    margin: 0;
+}
+
+.carrito-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0.5rem;
+}
+
+.carrito-breadcrumb .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+}
+
+.carrito-breadcrumb .breadcrumb-item.active {
+    color: white;
+}
+
+.carrito-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.carrito-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+}
+
+/* Indicador de Progreso */
+.progress-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.step-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.progress-step.active .step-circle {
+    background: white;
+    color: var(--primary-color);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+}
+
+.step-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+.progress-step.active .step-label {
+    opacity: 1;
+    font-weight: 600;
+}
+
+.progress-line {
+    width: 80px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* ===============================================
+   CONTENIDO PRINCIPAL
+   =============================================== */
+.carrito-main {
+    padding: 3rem 0;
+    background: var(--light-bg);
+    min-height: 70vh;
+}
+
+/* ===============================================
+   PRODUCTOS DEL CARRITO
+   =============================================== */
+.carrito-productos {
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.productos-header {
+    background: var(--primary-color);
+    color: white;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.productos-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.btn-vaciar {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.btn-vaciar:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.productos-lista {
+    padding: 0;
+}
+
+.producto-item {
+    display: flex;
+    align-items: center;
+    padding: 2rem;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.producto-item:last-child {
+    border-bottom: none;
+}
+
+.producto-item:hover {
+    background: #f8f9fa;
+}
+
+.producto-imagen {
+    width: 120px;
+    height: 120px;
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #f8f9fa;
+}
+
+.producto-imagen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.producto-info {
+    flex-grow: 1;
+}
+
+.producto-nombre {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.producto-precio-unitario {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.producto-precio-unitario .precio {
+    font-weight: 600;
+    color: var(--success-color);
+}
+
+.producto-controles {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.cantidad-controles {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 25px;
+    padding: 0.25rem;
+}
+
+.btn-cantidad {
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 50%;
+    background: var(--accent-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    font-size: 0.8rem;
+}
+
+.btn-cantidad:hover {
+    background: #2980b9;
+    transform: scale(1.1);
+}
+
+.btn-menos:hover {
+    background: var(--warning-color);
+}
+
+.cantidad-display {
+    min-width: 40px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+}
+
+.btn-eliminar {
+    background: transparent;
+    color: var(--danger-color);
+    border: 2px solid var(--danger-color);
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-eliminar:hover {
+    background: var(--danger-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.producto-total {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.subtotal-label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.subtotal-valor {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--success-color);
+}
+
+/* ===============================================
+   CONTINUAR COMPRANDO
+   =============================================== */
+.continuar-comprando {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.btn-continuar {
+    background: transparent;
+    color: var(--accent-color);
+    border: 2px solid var(--accent-color);
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-continuar:hover {
+    background: var(--accent-color);
+    color: white;
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+/* ===============================================
+   RESUMEN DE COMPRA
+   =============================================== */
+.resumen-compra {
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    position: sticky;
+    top: 6rem;
+}
+
+.resumen-header {
+    background: var(--secondary-color);
+    color: white;
+    padding: 1.5rem;
+}
+
+.resumen-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.resumen-contenido {
+    padding: 1.5rem;
+}
+
+.resumen-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.resumen-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.resumen-valor {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.envio-gratis {
+    color: var(--success-color);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.envio-info {
+    background: #e8f5e8;
+    color: var(--success-color);
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin: 1rem 0;
+    border-left: 4px solid var(--success-color);
+}
+
+.resumen-divider {
+    height: 1px;
+    background: #e9ecef;
+    margin: 1.5rem 0;
+}
+
+.resumen-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.total-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.total-valor {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--success-color);
+}
+
+.resumen-acciones {
+    text-align: center;
+}
+
+.btn-finalizar {
+    background: linear-gradient(135deg, var(--success-color), var(--accent-color));
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.btn-finalizar:hover {
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(39, 174, 96, 0.3);
+    text-decoration: none;
+}
+
+.metodos-pago {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.payment-icons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.payment-icons i {
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    transition: color 0.3s ease;
+}
+
+.payment-icons i:hover {
+    color: var(--accent-color);
+}
+
+/* ===============================================
+   GARANTÍAS Y ENVÍO
+   =============================================== */
+.garantias-envio {
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.garantias-envio h4 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.garantia-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.garantia-item:last-child {
+    margin-bottom: 0;
+}
+
+.garantia-item i {
+    font-size: 1.5rem;
+    color: var(--success-color);
+    min-width: 30px;
+}
+
+.garantia-item strong {
+    color: var(--primary-color);
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.garantia-item p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* ===============================================
+   CARRITO VACÍO
+   =============================================== */
+.carrito-vacio {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.vacio-content {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.vacio-icon {
+    font-size: 6rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    opacity: 0.5;
+}
+
+.vacio-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.vacio-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.btn-explorar {
+    background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+    color: white;
+    padding: 1rem 2.5rem;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-explorar:hover {
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(52, 152, 219, 0.3);
+    text-decoration: none;
+}
+
+.productos-sugeridos {
+    margin-top: 3rem;
+}
+
+.productos-sugeridos h3 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+}
+
+.sugerencias-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.sugerencia-item {
+    background: white;
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.sugerencia-item:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.sugerencia-item i {
+    font-size: 2rem;
+    color: var(--accent-color);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.sugerencia-item span {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--primary-color);
+}
+
+/* ===============================================
+   FOOTER
+   =============================================== */
+.ct-footer {
+    background: var(--primary-color);
+    color: white;
+    padding: 2rem 0;
+    text-align: center;
+    margin-top: 3rem;
+}
+
+.ct-footer-content {
+    margin-bottom: 1rem;
+}
+
+.ct-footer-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+/* ===============================================
+   RESPONSIVE DESIGN
+   =============================================== */
+@media (max-width: 768px) {
+    .carrito-title {
+        font-size: 2rem;
+    }
+    
+    .progress-indicator {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .progress-line {
+        width: 2px;
+        height: 30px;
+    }
+    
+    .step-circle {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+    
+    .producto-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .producto-imagen {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .producto-controles {
+        justify-content: center;
+    }
+    
+    .productos-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .ct-nav-user {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .resumen-compra {
+        position: static;
+        margin-top: 2rem;
+    }
+    
+    .sugerencias-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .carrito-main {
+        padding: 2rem 0;
+    }
+    
+    .producto-item {
+        padding: 1.5rem;
+    }
+    
+    .productos-header {
+        padding: 1rem;
+    }
+    
+    .resumen-contenido {
+        padding: 1rem;
+    }
+    
+    .btn-finalizar {
+        font-size: 1rem;
+        padding: 0.875rem 1.5rem;
+    }
+    
+    .garantias-envio {
+        margin-top: 1rem;
+        padding: 1rem;
+    }
+    
+    .garantia-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+}
+
+/* ===============================================
+   ANIMACIONES ADICIONALES
+   =============================================== */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.producto-item {
+    animation: slideInUp 0.5s ease forwards;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.btn-finalizar:hover {
+    animation: pulse 0.6s ease-in-out;
+}
+
+/* Estados de loading */
+.btn-loading {
+    pointer-events: none;
+    opacity: 0.7;
+    position: relative;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    margin: auto;
+    border: 2px solid transparent;
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

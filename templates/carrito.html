@@ -2,56 +2,420 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Carrito de compras</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras - ComercioTech</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/comerciotech-theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/carrito.css') }}">
 </head>
 <body>
-    <h1 class="titulo-carrito">Carrito de compras</h1>
-    <a href="{{ url_for('index') }}" class="volver-link">← Seguir comprando</a>
+    <!-- Header -->
+    <header class="ct-main-header">
+        <div class="container">
+            <nav class="d-flex justify-content-between align-items-center">
+                <a href="{{ url_for('index') }}" class="ct-navbar-brand">
+                    <i class="fas fa-laptop-code"></i>
+                    ComercioTech
+                </a>
 
-    <div class="carrito-container">
-        {% for item in carrito %}
-        <div class="carrito-item">
-            <img src="{{ url_for('static', filename='img/' + item.imagen) }}" class="carrito-img">
-
-            <div class="carrito-info">
-                <h2>{{ item.nombre }}</h2>
-                <p>Precio unitario: <strong>${{ "{:,}".format(item.precio) }}</strong></p>
-
-                <div class="carrito-controles">
-                    <form action="{{ url_for('disminuir', producto_id=item.id) }}" method="post" style="display:inline;">
-                        <button type="submit" class="btn-control">−</button>
-                    </form>
-
-                    <span class="cantidad">{{ item.cantidad }}</span>
-
-                    <form action="{{ url_for('incrementar', producto_id=item.id) }}" method="post" style="display:inline;">
-                        <button type="submit" class="btn-control">+</button>
-                    </form>
-
-                    <form action="{{ url_for('eliminar', producto_id=item.id) }}" method="post" style="display:inline;">
-                        <button type="submit" class="btn-quitar">🗑 Quitar</button>
-                    </form>
+                <div class="ct-nav-user">
+                    {% if session.usuario %}
+                        <p class="ct-user-welcome mb-0">
+                            <i class="fas fa-user-circle me-2"></i>
+                            Bienvenido, <strong>{{ session.usuario }}</strong>
+                        </p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="{{ url_for('index') }}" class="ct-nav-btn ct-nav-btn-outline">
+                                <i class="fas fa-home"></i>
+                                <span>Inicio</span>
+                            </a>
+                            <a href="{{ url_for('mis_pedidos') }}" class="ct-nav-btn ct-nav-btn-outline">
+                                <i class="fas fa-box"></i>
+                                <span>Mis Pedidos</span>
+                            </a>
+                            <a href="{{ url_for('logout') }}" class="ct-nav-btn ct-nav-btn-danger">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Salir</span>
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
+            </nav>
+        </div>
+    </header>
 
-                <p>Total: <strong>${{ "{:,}".format(item.precio * item.cantidad) }}</strong></p>
+    <!-- Hero Section del Carrito -->
+    <section class="carrito-hero">
+        <div class="container">
+            <div class="carrito-hero-content">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="carrito-breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ url_for('index') }}">
+                                <i class="fas fa-home"></i> Inicio
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active">Carrito de Compras</li>
+                    </ol>
+                </nav>
+
+                <h1 class="carrito-title">
+                    <i class="fas fa-shopping-cart me-3"></i>
+                    Tu Carrito de Compras
+                </h1>
+                <p class="carrito-subtitle">
+                    Revisa tus productos seleccionados y procede con tu compra
+                </p>
+
+                <!-- Indicador de progreso -->
+                <div class="progress-indicator">
+                    <div class="progress-step active">
+                        <div class="step-circle">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <span class="step-label">Carrito</span>
+                    </div>
+                    <div class="progress-line"></div>
+                    <div class="progress-step">
+                        <div class="step-circle">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <span class="step-label">Pago</span>
+                    </div>
+                    <div class="progress-line"></div>
+                    <div class="progress-step">
+                        <div class="step-circle">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <span class="step-label">Confirmación</span>
+                    </div>
+                </div>
             </div>
         </div>
-        {% endfor %}
-    </div>
+    </section>
 
-    <div class="carrito-resumen">
-        <p><strong>Total a pagar:</strong> ${{ "{:,}".format(total) }}</p>
-        <div class="resumen-botones">
-            <form action="{{ url_for('vaciar_carrito') }}" method="post" style="display:inline;">
-                <button type="submit" class="btn-vaciar">🗑 Vaciar carrito</button>
-            </form>
-            <a href="{{ url_for('finalizar_compra') }}" class="btn-comprar">✅ Finalizar compra</a>
+    <!-- Contenido Principal -->
+    <main class="carrito-main">
+        <div class="container">
+            {% if carrito %}
+                <div class="row">
+                    <!-- Lista de Productos -->
+                    <div class="col-lg-8">
+                        <div class="carrito-productos">
+                            <div class="productos-header">
+                                <h3>
+                                    <i class="fas fa-box me-2"></i>
+                                    Productos en tu carrito ({{ carrito|length }})
+                                </h3>
+                                <form action="{{ url_for('vaciar_carrito') }}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn-vaciar" onclick="return confirm('¿Estás seguro de vaciar el carrito?')">
+                                        <i class="fas fa-trash"></i>
+                                        Vaciar carrito
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="productos-lista">
+                                {% for item in carrito %}
+                                <div class="producto-item" data-producto-id="{{ item.id }}">
+                                    <div class="producto-imagen">
+                                        <img src="{{ url_for('static', filename='img/' + item.imagen) }}" 
+                                             alt="{{ item.nombre }}"
+                                             onerror="this.src='{{ url_for('static', filename='img/placeholder.jpg') }}'">
+                                    </div>
+
+                                    <div class="producto-info">
+                                        <h4 class="producto-nombre">{{ item.nombre }}</h4>
+                                        <p class="producto-precio-unitario">
+                                            Precio unitario: <span class="precio">${{ "{:,}".format(item.precio) }}</span>
+                                        </p>
+                                        
+                                        <div class="producto-controles">
+                                            <div class="cantidad-controles">
+                                                <form action="{{ url_for('disminuir', producto_id=item.id) }}" method="post" style="display:inline;">
+                                                    <button type="submit" class="btn-cantidad btn-menos">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                </form>
+                                                
+                                                <span class="cantidad-display">{{ item.cantidad }}</span>
+                                                
+                                                <form action="{{ url_for('incrementar', producto_id=item.id) }}" method="post" style="display:inline;">
+                                                    <button type="submit" class="btn-cantidad btn-mas">
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+
+                                            <form action="{{ url_for('eliminar', producto_id=item.id) }}" method="post" style="display:inline;">
+                                                <button type="submit" class="btn-eliminar" onclick="return confirm('¿Eliminar este producto?')">
+                                                    <i class="fas fa-trash"></i>
+                                                    Eliminar
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <div class="producto-total">
+                                        <div class="subtotal">
+                                            <span class="subtotal-label">Subtotal:</span>
+                                            <span class="subtotal-valor">${{ "{:,}".format(item.precio * item.cantidad) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Continuar comprando -->
+                        <div class="continuar-comprando">
+                            <a href="{{ url_for('index') }}" class="btn-continuar">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Continuar comprando
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Resumen de Compra -->
+                    <div class="col-lg-4">
+                        <div class="resumen-compra">
+                            <div class="resumen-header">
+                                <h3>
+                                    <i class="fas fa-calculator me-2"></i>
+                                    Resumen de Compra
+                                </h3>
+                            </div>
+
+                            <div class="resumen-contenido">
+                                <div class="resumen-item">
+                                    <span class="resumen-label">Productos ({{ carrito|length }}):</span>
+                                    <span class="resumen-valor" id="subtotal">${{ "{:,}".format(total) }}</span>
+                                </div>
+
+                                <div class="resumen-item">
+                                    <span class="resumen-label">Envío:</span>
+                                    <span class="resumen-valor envio-valor" id="envio">
+                                        {% if total >= 50000 %}
+                                            <span class="envio-gratis">GRATIS</span>
+                                        {% else %}
+                                            $5.990
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                {% if total < 50000 %}
+                                <div class="envio-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Agrega ${{ "{:,}".format(50000 - total) }} más para envío gratis
+                                </div>
+                                {% endif %}
+
+                                <div class="resumen-divider"></div>
+
+                                <div class="resumen-total">
+                                    <span class="total-label">Total a pagar:</span>
+                                    <span class="total-valor" id="total">
+                                        ${{ "{:,}".format(total + (5990 if total < 50000 else 0)) }}
+                                    </span>
+                                </div>
+
+                                <div class="resumen-acciones">
+                                    <a href="{{ url_for('finalizar_compra') }}" class="btn-finalizar">
+                                        <i class="fas fa-credit-card me-2"></i>
+                                        Finalizar Compra
+                                    </a>
+                                    
+                                    <div class="metodos-pago">
+                                        <small class="text-muted">Aceptamos:</small>
+                                        <div class="payment-icons">
+                                            <i class="fab fa-cc-visa"></i>
+                                            <i class="fab fa-cc-mastercard"></i>
+                                            <i class="fab fa-cc-amex"></i>
+                                            <i class="fas fa-mobile-alt"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Envío y Garantías -->
+                        <div class="garantias-envio">
+                            <h4>
+                                <i class="fas fa-shield-alt me-2"></i>
+                                Nuestras Garantías
+                            </h4>
+                            <div class="garantia-item">
+                                <i class="fas fa-shipping-fast"></i>
+                                <div>
+                                    <strong>Envío Rápido</strong>
+                                    <p>Entrega en 24-48 horas</p>
+                                </div>
+                            </div>
+                            <div class="garantia-item">
+                                <i class="fas fa-undo"></i>
+                                <div>
+                                    <strong>Devolución Fácil</strong>
+                                    <p>30 días para devolver</p>
+                                </div>
+                            </div>
+                            <div class="garantia-item">
+                                <i class="fas fa-lock"></i>
+                                <div>
+                                    <strong>Compra Segura</strong>
+                                    <p>Protección total de datos</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            {% else %}
+                <!-- Carrito Vacío -->
+                <div class="carrito-vacio">
+                    <div class="vacio-content">
+                        <div class="vacio-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <h2 class="vacio-title">Tu carrito está vacío</h2>
+                        <p class="vacio-subtitle">
+                            ¡Descubre nuestros increíbles productos y comienza a llenar tu carrito!
+                        </p>
+                        <a href="{{ url_for('index') }}" class="btn-explorar">
+                            <i class="fas fa-search me-2"></i>
+                            Explorar Productos
+                        </a>
+
+                        <!-- Productos Sugeridos -->
+                        <div class="productos-sugeridos">
+                            <h3>Te podría interesar:</h3>
+                            <div class="sugerencias-grid">
+                                <div class="sugerencia-item">
+                                    <i class="fas fa-laptop"></i>
+                                    <span>Notebooks</span>
+                                </div>
+                                <div class="sugerencia-item">
+                                    <i class="fas fa-mouse"></i>
+                                    <span>Periféricos</span>
+                                </div>
+                                <div class="sugerencia-item">
+                                    <i class="fas fa-headphones"></i>
+                                    <span>Audio</span>
+                                </div>
+                                <div class="sugerencia-item">
+                                    <i class="fas fa-keyboard"></i>
+                                    <span>Teclados</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
-    </div>
+    </main>
 
+    <!-- Footer -->
+    <footer class="ct-footer">
+        <div class="container">
+            <div class="ct-footer-content">
+                <div class="ct-footer-brand">
+                    <i class="fas fa-laptop-code me-2"></i>
+                    ComercioTech
+                </div>
+                <p>&copy; 2025 ComercioTech. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animaciones de entrada
+            const productos = document.querySelectorAll('.producto-item');
+            productos.forEach((producto, index) => {
+                producto.style.opacity = '0';
+                producto.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    producto.style.transition = 'all 0.5s ease';
+                    producto.style.opacity = '1';
+                    producto.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+
+            // Efectos hover para botones
+            const botones = document.querySelectorAll('.btn-cantidad, .btn-eliminar');
+            botones.forEach(boton => {
+                boton.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                });
+                boton.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+
+            // Actualizar totales dinámicamente (si se implementa AJAX)
+            function actualizarTotales() {
+                // Esta función se puede expandir para cálculos dinámicos
+                console.log('Totales actualizados');
+            }
+
+            // Mostrar notificaciones
+            function mostrarNotificacion(mensaje, tipo = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `position-fixed top-0 end-0 m-3 alert alert-${tipo} alert-dismissible fade show`;
+                notification.style.zIndex = '9999';
+                notification.innerHTML = `
+                    <i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                    ${mensaje}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 5000);
+            }
+
+            // Interceptar envío de formularios para mostrar feedback
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function() {
+                    const boton = this.querySelector('button[type="submit"]');
+                    if (boton) {
+                        const textoOriginal = boton.innerHTML;
+                        boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                        boton.disabled = true;
+                        
+                        // Restaurar después de un tiempo (simulación)
+                        setTimeout(() => {
+                            boton.innerHTML = textoOriginal;
+                            boton.disabled = false;
+                        }, 1000);
+                    }
+                });
+            });
+
+            // Atajos de teclado
+            document.addEventListener('keydown', function(e) {
+                // Escape para volver al inicio
+                if (e.key === 'Escape') {
+                    window.location.href = "{{ url_for('index') }}";
+                }
+                
+                // F para finalizar compra
+                if (e.key === 'f' || e.key === 'F') {
+                    const btnFinalizar = document.querySelector('.btn-finalizar');
+                    if (btnFinalizar) {
+                        btnFinalizar.click();
+                    }
+                }
+            });
+        });
+    </script>
 </body>
-  <footer class="footer">
-    <p>&copy; 2025 ComercioTech. Todos los derechos reservados.</p>
-  </footer>
 </html>
