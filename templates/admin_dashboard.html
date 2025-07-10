@@ -7,557 +7,77 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/comerciotech-theme.css') }}">
-    <style>
-        body {
-            background: var(--light-bg);
-            font-family: var(--font-primary);
-        }
-
-        /* Header del Dashboard */
-        .ct-admin-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 2rem 0;
-            box-shadow: var(--shadow-lg);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ct-admin-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 30px 30px;
-            animation: float 20s ease-in-out infinite;
-        }
-
-        .ct-admin-header-content {
-            position: relative;
-            z-index: 2;
-        }
-
-        .ct-admin-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .ct-admin-subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            margin-bottom: 2rem;
-        }
-
-        .ct-admin-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .ct-stat-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border-radius: var(--radius-md);
-            padding: 1.5rem;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .ct-stat-card:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .ct-stat-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            opacity: 0.8;
-        }
-
-        .ct-stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .ct-stat-label {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Breadcrumb personalizado */
-        .ct-breadcrumb-admin {
-            background: transparent;
-            padding: 0;
-            margin-bottom: 1rem;
-        }
-
-        .ct-breadcrumb-admin .breadcrumb-item + .breadcrumb-item::before {
-            content: "›";
-            font-weight: bold;
-            color: rgba(255, 255, 255, 0.7);
-            margin: 0 0.5rem;
-        }
-
-        .ct-breadcrumb-admin .breadcrumb-item a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-        }
-
-        .ct-breadcrumb-admin .breadcrumb-item.active {
-            color: white;
-        }
-
-        /* Dashboard Grid */
-        .ct-dashboard-grid {
-            padding: 3rem 0;
-        }
-
-        .ct-dashboard-card {
-            background: white;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            overflow: hidden;
-            transition: all 0.4s ease;
-            height: 100%;
-            position: relative;
-        }
-
-        .ct-dashboard-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-xl);
-        }
-
-        .ct-dashboard-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--accent-color), var(--success-color));
-        }
-
-        .ct-card-header {
-            padding: 2rem;
-            text-align: center;
-            background: linear-gradient(135deg, #f8f9fa, #ffffff);
-        }
-
-        .ct-card-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-            font-size: 2rem;
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ct-card-icon::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
-            transform: rotate(45deg);
-            transition: all 0.6s ease;
-        }
-
-        .ct-dashboard-card:hover .ct-card-icon::before {
-            animation: shine 0.8s ease-in-out;
-        }
-
-        @keyframes shine {
-            0% {
-                transform: translateX(-100%) translateY(-100%) rotate(45deg);
-            }
-            100% {
-                transform: translateX(100%) translateY(100%) rotate(45deg);
-            }
-        }
-
-        .ct-icon-pedidos {
-            background: linear-gradient(135deg, var(--accent-color), #2980b9);
-        }
-
-        .ct-icon-productos {
-            background: linear-gradient(135deg, var(--success-color), #219a52);
-        }
-
-        .ct-icon-usuarios {
-            background: linear-gradient(135deg, var(--warning-color), #e67e22);
-        }
-
-        .ct-icon-reportes {
-            background: linear-gradient(135deg, var(--info-color), #1e90ff);
-        }
-
-        .ct-icon-configuracion {
-            background: linear-gradient(135deg, var(--secondary-color), #4a5568);
-        }
-
-        .ct-icon-salir {
-            background: linear-gradient(135deg, var(--danger-color), #c53030);
-        }
-
-        .ct-card-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
-        .ct-card-description {
-            color: var(--text-secondary);
-            line-height: 1.6;
-            margin-bottom: 2rem;
-        }
-
-        .ct-card-footer {
-            padding: 1.5rem 2rem;
-            background: #f8f9fa;
-            border-top: 1px solid #dee2e6;
-        }
-
-        .ct-admin-btn {
-            background: linear-gradient(135deg, var(--accent-color), var(--success-color));
-            color: white;
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 25px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .ct-admin-btn:hover {
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(52, 152, 219, 0.3);
-            text-decoration: none;
-        }
-
-        .ct-admin-btn-secondary {
-            background: linear-gradient(135deg, var(--secondary-color), #4a5568);
-        }
-
-        .ct-admin-btn-danger {
-            background: linear-gradient(135deg, var(--danger-color), #c53030);
-        }
-
-        .ct-admin-btn-warning {
-            background: linear-gradient(135deg, var(--warning-color), #e67e22);
-        }
-
-        /* Quick Actions */
-        .ct-quick-actions {
-            background: white;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .ct-quick-actions h3 {
-            color: var(--primary-color);
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .ct-action-btn {
-            background: var(--light-bg);
-            border: 2px solid transparent;
-            border-radius: var(--radius-md);
-            padding: 1rem;
-            margin: 0.5rem;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: var(--text-primary);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 500;
-        }
-
-        .ct-action-btn:hover {
-            border-color: var(--accent-color);
-            background: white;
-            color: var(--accent-color);
-            text-decoration: none;
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        /* System Status */
-        .ct-system-status {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .ct-status-item {
-            background: white;
-            padding: 1.5rem;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .ct-status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--success-color);
-            animation: pulse 2s infinite;
-        }
-
-        .ct-status-offline {
-            background: var(--danger-color);
-        }
-
-        .ct-status-warning {
-            background: var(--warning-color);
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(39, 174, 96, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(39, 174, 96, 0);
-            }
-        }
-
-        /* Recent Activity */
-        .ct-recent-activity {
-            background: white;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            padding: 2rem;
-            margin-top: 2rem;
-        }
-
-        .ct-activity-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .ct-activity-item:last-child {
-            border-bottom: none;
-        }
-
-        .ct-activity-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            color: white;
-        }
-
-        .ct-activity-content {
-            flex-grow: 1;
-        }
-
-        .ct-activity-title {
-            font-weight: 600;
-            color: var(--primary-color);
-            margin-bottom: 0.25rem;
-        }
-
-        .ct-activity-time {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .ct-admin-title {
-                font-size: 2rem;
-                flex-direction: column;
-                gap: 0.5rem;
-                text-align: center;
-            }
-
-            .ct-admin-stats {
-                grid-template-columns: 1fr;
-            }
-
-            .ct-dashboard-grid .row > div {
-                margin-bottom: 2rem;
-            }
-
-            .ct-quick-actions {
-                text-align: center;
-            }
-
-            .ct-action-btn {
-                width: 100%;
-                justify-content: center;
-                margin: 0.5rem 0;
-            }
-        }
-
-        /* Loading animations */
-        .ct-fade-in-up {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.6s ease;
-        }
-
-        .ct-fade-in-up.animate {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .ct-scale-in {
-            opacity: 0;
-            transform: scale(0.9);
-            transition: all 0.4s ease;
-        }
-
-        .ct-scale-in.animate {
-            opacity: 1;
-            transform: scale(1);
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-dashboard.css') }}">
 </head>
 <body>
     <!-- Header del Dashboard -->
-    <header class="ct-admin-header">
+    <header class="admin-header">
         <div class="container">
-            <div class="ct-admin-header-content">
-                <!-- Breadcrumb -->
-                <nav aria-label="breadcrumb" class="ct-breadcrumb-admin">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="{{ url_for('index') }}">
-                                <i class="fas fa-home"></i> Tienda
-                            </a>
-                        </li>
-                        <li class="breadcrumb-item active">Panel de Administración</li>
-                    </ol>
-                </nav>
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="breadcrumb-admin">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('index') }}">
+                            <i class="fas fa-home"></i> Tienda
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">Panel de Administración</li>
+                </ol>
+            </nav>
 
-                <!-- Título y descripción -->
-                <div class="ct-fade-in-up">
-                    <h1 class="ct-admin-title">
-                        <i class="fas fa-tachometer-alt"></i>
-                        Panel de Administración
-                    </h1>
-                    <p class="ct-admin-subtitle">
-                        Gestiona y controla todos los aspectos de tu e-commerce desde una interfaz centralizada y profesional.
-                    </p>
+            <!-- Título -->
+            <h1 class="admin-title">
+                <i class="fas fa-tachometer-alt me-3"></i>
+                Panel de Administración
+            </h1>
+            <p class="admin-subtitle">
+                Gestiona y controla todos los aspectos de tu e-commerce desde una interfaz centralizada.
+            </p>
+
+            <!-- Estadísticas -->
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <i class="fas fa-shopping-cart stat-icon"></i>
+                    <div class="stat-number" id="totalPedidos">0</div>
+                    <div class="stat-label">Pedidos Hoy</div>
                 </div>
-
-                <!-- Estadísticas rápidas -->
-                <div class="ct-admin-stats ct-fade-in-up" style="animation-delay: 0.2s;">
-                    <div class="ct-stat-card">
-                        <i class="fas fa-shopping-cart ct-stat-icon"></i>
-                        <div class="ct-stat-number" id="totalPedidos">0</div>
-                        <div class="ct-stat-label">Pedidos Hoy</div>
-                    </div>
-                    <div class="ct-stat-card">
-                        <i class="fas fa-dollar-sign ct-stat-icon"></i>
-                        <div class="ct-stat-number" id="ventasHoy">$0</div>
-                        <div class="ct-stat-label">Ventas Hoy</div>
-                    </div>
-                    <div class="ct-stat-card">
-                        <i class="fas fa-users ct-stat-icon"></i>
-                        <div class="ct-stat-number" id="usuariosActivos">0</div>
-                        <div class="ct-stat-label">Usuarios Activos</div>
-                    </div>
-                    <div class="ct-stat-card">
-                        <i class="fas fa-box ct-stat-icon"></i>
-                        <div class="ct-stat-number" id="productosStock">0</div>
-                        <div class="ct-stat-label">Productos en Stock</div>
-                    </div>
+                <div class="stat-card">
+                    <i class="fas fa-dollar-sign stat-icon"></i>
+                    <div class="stat-number" id="ventasHoy">$0</div>
+                    <div class="stat-label">Ventas Hoy</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-users stat-icon"></i>
+                    <div class="stat-number" id="usuariosActivos">0</div>
+                    <div class="stat-label">Usuarios Activos</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-box stat-icon"></i>
+                    <div class="stat-number" id="productosStock">0</div>
+                    <div class="stat-label">Productos en Stock</div>
                 </div>
             </div>
         </div>
     </header>
 
     <!-- Contenido Principal -->
-    <main class="ct-dashboard-grid">
+    <main class="dashboard-grid">
         <div class="container">
-            <!-- Acciones Rápidas -->
-            <div class="ct-quick-actions ct-fade-in-up" style="animation-delay: 0.3s;">
-                <h3>
-                    <i class="fas fa-bolt"></i>
-                    Acciones Rápidas
-                </h3>
-                <div class="d-flex flex-wrap justify-content-center">
-                    <a href="{{ url_for('admin_nuevo_producto') }}" class="ct-action-btn">
-                        <i class="fas fa-plus"></i>
-                        Nuevo Producto
-                    </a>
-                    <a href="#" class="ct-action-btn" onclick="refreshStats()">
-                        <i class="fas fa-sync-alt"></i>
-                        Actualizar Datos
-                    </a>
-                    <a href="#" class="ct-action-btn">
-                        <i class="fas fa-download"></i>
-                        Exportar Reportes
-                    </a>
-                    <a href="#" class="ct-action-btn">
-                        <i class="fas fa-bell"></i>
-                        Notificaciones
-                    </a>
-                </div>
-            </div>
-
-            <!-- Grid Principal de Opciones -->
             <div class="row">
                 <!-- Gestión de Pedidos -->
                 <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="ct-dashboard-card ct-scale-in" style="animation-delay: 0.4s;">
-                        <div class="ct-card-header">
-                            <div class="ct-card-icon ct-icon-pedidos">
+                    <div class="dashboard-card">
+                        <div class="card-header-custom">
+                            <div class="card-icon icon-pedidos">
                                 <i class="fas fa-shopping-cart"></i>
                             </div>
-                            <h3 class="ct-card-title">Gestión de Pedidos</h3>
-                            <p class="ct-card-description">
-                                Administra, revisa y actualiza el estado de todos los pedidos de tus clientes en tiempo real.
+                            <h3 class="card-title-custom">Gestión de Pedidos</h3>
+                            <p class="card-description">
+                                Administra, revisa y actualiza el estado de todos los pedidos de tus clientes.
                             </p>
                         </div>
-                        <div class="ct-card-footer">
-                            <a href="{{ url_for('admin_pedidos') }}" class="ct-admin-btn">
+                        <div class="card-footer-custom">
+                            <a href="{{ url_for('admin_pedidos') }}" class="admin-btn">
                                 <i class="fas fa-arrow-right"></i>
                                 Ver Pedidos
                             </a>
@@ -567,18 +87,18 @@
 
                 <!-- Gestión de Productos -->
                 <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="ct-dashboard-card ct-scale-in" style="animation-delay: 0.5s;">
-                        <div class="ct-card-header">
-                            <div class="ct-card-icon ct-icon-productos">
+                    <div class="dashboard-card">
+                        <div class="card-header-custom">
+                            <div class="card-icon icon-productos">
                                 <i class="fas fa-box"></i>
                             </div>
-                            <h3 class="ct-card-title">Gestión de Productos</h3>
-                            <p class="ct-card-description">
-                                Crea, edita, elimina y organiza tu catálogo de productos con herramientas profesionales.
+                            <h3 class="card-title-custom">Gestión de Productos</h3>
+                            <p class="card-description">
+                                Crea, edita, elimina y organiza tu catálogo de productos.
                             </p>
                         </div>
-                        <div class="ct-card-footer">
-                            <a href="{{ url_for('admin_productos') }}" class="ct-admin-btn">
+                        <div class="card-footer-custom">
+                            <a href="{{ url_for('admin_productos') }}" class="admin-btn">
                                 <i class="fas fa-arrow-right"></i>
                                 Gestionar Productos
                             </a>
@@ -588,18 +108,18 @@
 
                 <!-- Gestión de Usuarios -->
                 <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="ct-dashboard-card ct-scale-in" style="animation-delay: 0.6s;">
-                        <div class="ct-card-header">
-                            <div class="ct-card-icon ct-icon-usuarios">
+                    <div class="dashboard-card">
+                        <div class="card-header-custom">
+                            <div class="card-icon icon-usuarios">
                                 <i class="fas fa-users"></i>
                             </div>
-                            <h3 class="ct-card-title">Gestión de Usuarios</h3>
-                            <p class="ct-card-description">
-                                Administra cuentas de usuarios, permisos y mantén un control completo de tu comunidad.
+                            <h3 class="card-title-custom">Gestión de Usuarios</h3>
+                            <p class="card-description">
+                                Administra cuentas de usuarios y permisos.
                             </p>
                         </div>
-                        <div class="ct-card-footer">
-                            <a href="#" class="ct-admin-btn ct-admin-btn-warning">
+                        <div class="card-footer-custom">
+                            <a href="#" class="admin-btn admin-btn-warning">
                                 <i class="fas fa-arrow-right"></i>
                                 Próximamente
                             </a>
@@ -607,20 +127,20 @@
                     </div>
                 </div>
 
-                <!-- Reportes y Analíticas -->
+                <!-- Reportes -->
                 <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="ct-dashboard-card ct-scale-in" style="animation-delay: 0.7s;">
-                        <div class="ct-card-header">
-                            <div class="ct-card-icon ct-icon-reportes">
+                    <div class="dashboard-card">
+                        <div class="card-header-custom">
+                            <div class="card-icon icon-reportes">
                                 <i class="fas fa-chart-bar"></i>
                             </div>
-                            <h3 class="ct-card-title">Reportes y Analíticas</h3>
-                            <p class="ct-card-description">
-                                Visualiza estadísticas detalladas, tendencias de ventas y métricas de rendimiento.
+                            <h3 class="card-title-custom">Reportes</h3>
+                            <p class="card-description">
+                                Visualiza estadísticas y métricas de rendimiento.
                             </p>
                         </div>
-                        <div class="ct-card-footer">
-                            <a href="#" class="ct-admin-btn ct-admin-btn-secondary">
+                        <div class="card-footer-custom">
+                            <a href="#" class="admin-btn admin-btn-secondary">
                                 <i class="fas fa-arrow-right"></i>
                                 Ver Estadísticas
                             </a>
@@ -628,22 +148,22 @@
                     </div>
                 </div>
 
-                <!-- Configuración del Sistema -->
+                <!-- Configuración -->
                 <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="ct-dashboard-card ct-scale-in" style="animation-delay: 0.8s;">
-                        <div class="ct-card-header">
-                            <div class="ct-card-icon ct-icon-configuracion">
+                    <div class="dashboard-card">
+                        <div class="card-header-custom">
+                            <div class="card-icon icon-configuracion">
                                 <i class="fas fa-cogs"></i>
                             </div>
-                            <h3 class="ct-card-title">Configuración</h3>
-                            <p class="ct-card-description">
-                                Personaliza configuraciones del sistema, métodos de pago, envíos y más opciones.
+                            <h3 class="card-title-custom">Configuración</h3>
+                            <p class="card-description">
+                                Personaliza configuraciones del sistema.
                             </p>
                         </div>
-                        <div class="ct-card-footer">
-                            <a href="#" class="ct-admin-btn ct-admin-btn-secondary">
+                        <div class="card-footer-custom">
+                            <a href="#" class="admin-btn admin-btn-secondary">
                                 <i class="fas fa-arrow-right"></i>
-                                Configurar Sistema
+                                Configurar
                             </a>
                         </div>
                     </div>
@@ -651,72 +171,23 @@
 
                 <!-- Cerrar Sesión -->
                 <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="ct-dashboard-card ct-scale-in" style="animation-delay: 0.9s;">
-                        <div class="ct-card-header">
-                            <div class="ct-card-icon ct-icon-salir">
+                    <div class="dashboard-card">
+                        <div class="card-header-custom">
+                            <div class="card-icon icon-salir">
                                 <i class="fas fa-sign-out-alt"></i>
                             </div>
-                            <h3 class="ct-card-title">Cerrar Sesión</h3>
-                            <p class="ct-card-description">
-                                Sal de forma segura del panel de administración y regresa a la tienda principal.
+                            <h3 class="card-title-custom">Cerrar Sesión</h3>
+                            <p class="card-description">
+                                Sal de forma segura del panel de administración.
                             </p>
                         </div>
-                        <div class="ct-card-footer">
-                            <a href="{{ url_for('logout') }}" class="ct-admin-btn ct-admin-btn-danger" onclick="return confirmLogout()">
+                        <div class="card-footer-custom">
+                            <a href="{{ url_for('logout') }}" class="admin-btn admin-btn-danger" onclick="return confirm('¿Estás seguro de que deseas cerrar sesión?')">
                                 <i class="fas fa-arrow-right"></i>
                                 Cerrar Sesión
                             </a>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Estado del Sistema -->
-            <div class="ct-recent-activity ct-fade-in-up" style="animation-delay: 1s;">
-                <h3>
-                    <i class="fas fa-server"></i>
-                    Estado del Sistema
-                </h3>
-                <div class="ct-system-status">
-                    <div class="ct-status-item">
-                        <div class="ct-status-indicator"></div>
-                        <div>
-                            <strong>Base de Datos</strong>
-                            <div class="text-muted">Conectado y funcionando</div>
-                        </div>
-                    </div>
-                    <div class="ct-status-item">
-                        <div class="ct-status-indicator" id="redisStatus"></div>
-                        <div>
-                            <strong>Cache Redis</strong>
-                            <div class="text-muted" id="redisStatusText">Verificando...</div>
-                        </div>
-                    </div>
-                    <div class="ct-status-item">
-                        <div class="ct-status-indicator"></div>
-                        <div>
-                            <strong>Servidor Web</strong>
-                            <div class="text-muted">Activo - 99.9% uptime</div>
-                        </div>
-                    </div>
-                    <div class="ct-status-item">
-                        <div class="ct-status-indicator ct-status-warning"></div>
-                        <div>
-                            <strong>Backup Sistema</strong>
-                            <div class="text-muted">Último backup: hace 2 horas</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Actividad Reciente -->
-            <div class="ct-recent-activity ct-fade-in-up" style="animation-delay: 1.1s;">
-                <h3>
-                    <i class="fas fa-history"></i>
-                    Actividad Reciente
-                </h3>
-                <div id="recentActivity">
-                    <!-- Las actividades se cargarán dinámicamente -->
                 </div>
             </div>
         </div>
@@ -732,45 +203,6 @@
             usuariosActivos: 156,
             productosStock: 89
         };
-
-        // Actividades recientes de ejemplo
-        const recentActivities = [
-            {
-                icon: 'fas fa-shopping-cart',
-                iconColor: 'ct-icon-pedidos',
-                title: 'Nuevo pedido recibido',
-                time: 'Hace 5 minutos',
-                description: 'Pedido #1025 por $89.990'
-            },
-            {
-                icon: 'fas fa-user-plus',
-                iconColor: 'ct-icon-usuarios',
-                title: 'Usuario registrado',
-                time: 'Hace 15 minutos',
-                description: 'Ana García se unió a la plataforma'
-            },
-            {
-                icon: 'fas fa-box',
-                iconColor: 'ct-icon-productos',
-                title: 'Producto actualizado',
-                time: 'Hace 30 minutos',
-                description: 'Stock de "Notebook Gamer" actualizado'
-            },
-            {
-                icon: 'fas fa-truck',
-                iconColor: 'ct-icon-pedidos',
-                title: 'Pedido enviado',
-                time: 'Hace 1 hora',
-                description: 'Pedido #1020 despachado'
-            },
-            {
-                icon: 'fas fa-star',
-                iconColor: 'ct-icon-productos',
-                title: 'Nueva reseña',
-                time: 'Hace 2 horas',
-                description: 'Reseña 5 estrellas para "Mouse Inalámbrico"'
-            }
-        ];
 
         // Animación de contador
         function animateCounter(element, target, duration = 2000) {
@@ -800,9 +232,9 @@
         // Formatear números
         function formatNumber(num) {
             if (num >= 1000000) {
-                return ' + (num / 1000000).toFixed(1) + 'M';
+                return '$' + (num / 1000000).toFixed(1) + 'M';
             } else if (num >= 1000) {
-                return ' + (num / 1000).toFixed(0) + 'K';
+                return '$' + (num / 1000).toFixed(0) + 'K';
             } else {
                 return num.toString();
             }
@@ -812,159 +244,36 @@
         function loadStats() {
             setTimeout(() => {
                 animateCounter(document.getElementById('totalPedidos'), statsData.pedidosHoy);
-                animateCounter(document.getElementById('ventasHoy'), statsData.ventasHoy);
+                
+                // Para ventas, formatear como dinero
+                const ventasElement = document.getElementById('ventasHoy');
+                let currentVentas = 0;
+                const ventasInterval = setInterval(() => {
+                    currentVentas += statsData.ventasHoy / 50;
+                    if (currentVentas >= statsData.ventasHoy) {
+                        currentVentas = statsData.ventasHoy;
+                        clearInterval(ventasInterval);
+                    }
+                    ventasElement.textContent = '$' + Math.floor(currentVentas).toLocaleString('es-CL');
+                }, 40);
+                
                 animateCounter(document.getElementById('usuariosActivos'), statsData.usuariosActivos);
                 animateCounter(document.getElementById('productosStock'), statsData.productosStock);
             }, 500);
         }
 
-        // Cargar actividad reciente
-        function loadRecentActivity() {
-            const activityContainer = document.getElementById('recentActivity');
-            
-            const activityHTML = recentActivities.map(activity => `
-                <div class="ct-activity-item">
-                    <div class="ct-activity-icon ${activity.iconColor}">
-                        <i class="${activity.icon}"></i>
-                    </div>
-                    <div class="ct-activity-content">
-                        <div class="ct-activity-title">${activity.title}</div>
-                        <div class="ct-activity-time">${activity.time}</div>
-                        <div class="text-muted">${activity.description}</div>
-                    </div>
-                </div>
-            `).join('');
-            
-            activityContainer.innerHTML = activityHTML;
-        }
-
-        // Verificar estado de Redis
-        function checkRedisStatus() {
-            const statusIndicator = document.getElementById('redisStatus');
-            const statusText = document.getElementById('redisStatusText');
-            
-            // Simular verificación de estado
-            setTimeout(() => {
-                // En una aplicación real, esto sería una llamada AJAX
-                const isConnected = Math.random() > 0.3; // 70% probabilidad de estar conectado
-                
-                if (isConnected) {
-                    statusText.textContent = 'Conectado y optimizado';
-                } else {
-                    statusIndicator.classList.add('ct-status-offline');
-                    statusText.textContent = 'Desconectado - usando fallback';
-                }
-            }, 1000);
-        }
-
-        // Refrescar estadísticas
-        function refreshStats() {
-            // Mostrar indicador de carga
-            showNotification('Actualizando estadísticas...', 'info');
-            
-            // Simular carga de datos
-            setTimeout(() => {
-                // Actualizar con nuevos datos simulados
-                statsData.pedidosHoy += Math.floor(Math.random() * 5);
-                statsData.ventasHoy += Math.floor(Math.random() * 100000);
-                statsData.usuariosActivos += Math.floor(Math.random() * 10);
-                
-                loadStats();
-                showNotification('Estadísticas actualizadas correctamente', 'success');
-            }, 1500);
-        }
-
-        // Confirmación de logout
-        function confirmLogout() {
-            return confirm('¿Estás seguro de que deseas cerrar sesión?');
-        }
-
-        // Sistema de notificaciones
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `position-fixed top-0 end-0 m-3 alert alert-${type} alert-dismissible fade show`;
-            notification.style.zIndex = '9999';
-            notification.innerHTML = `
-                <i class="fas fa-${getNotificationIcon(type)} me-2"></i>
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 5000);
-        }
-
-        function getNotificationIcon(type) {
-            const icons = {
-                success: 'check-circle',
-                info: 'info-circle',
-                warning: 'exclamation-triangle',
-                danger: 'times-circle'
-            };
-            return icons[type] || 'info-circle';
-        }
-
-        // Intersection Observer para animaciones
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver(function(entries) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate');
-                }
-            });
-        }, observerOptions);
-
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
-            // Observar elementos para animaciones
-            const animatedElements = document.querySelectorAll('.ct-fade-in-up, .ct-scale-in');
-            animatedElements.forEach(el => observer.observe(el));
-            
-            // Cargar datos
             loadStats();
-            loadRecentActivity();
-            checkRedisStatus();
             
             // Mostrar mensaje de bienvenida
             setTimeout(() => {
-                showNotification('¡Bienvenido al panel de administración!', 'success');
+                console.log('Dashboard cargado correctamente');
             }, 1000);
-            
-            // Actualizar actividad cada 30 segundos
-            setInterval(() => {
-                // Agregar nueva actividad simulada
-                if (Math.random() > 0.7) {
-                    const newActivity = {
-                        icon: 'fas fa-bell',
-                        iconColor: 'ct-icon-reportes',
-                        title: 'Actividad del sistema',
-                        time: 'Ahora',
-                        description: 'Sistema funcionando correctamente'
-                    };
-                    recentActivities.unshift(newActivity);
-                    recentActivities.splice(5); // Mantener solo 5 actividades
-                    loadRecentActivity();
-                }
-            }, 30000);
         });
 
         // Atajos de teclado
         document.addEventListener('keydown', function(e) {
-            // Ctrl + R para refrescar stats
-            if (e.ctrlKey && e.key === 'r') {
-                e.preventDefault();
-                refreshStats();
-            }
-            
             // Ctrl + P para ir a pedidos
             if (e.ctrlKey && e.key === 'p') {
                 e.preventDefault();
@@ -982,68 +291,6 @@
                 window.location.href = "{{ url_for('index') }}";
             }
         });
-
-        // Efecto parallax sutil para el header
-        window.addEventListener('scroll', function() {
-            const scrolled = window.pageYOffset;
-            const header = document.querySelector('.ct-admin-header');
-            if (header) {
-                header.style.transform = `translateY(${scrolled * 0.1}px)`;
-            }
-        });
-
-        // Actualización en tiempo real simulada
-        function simulateRealTimeUpdates() {
-            setInterval(() => {
-                // Simular nuevos pedidos
-                if (Math.random() > 0.8) {
-                    statsData.pedidosHoy++;
-                    statsData.ventasHoy += Math.floor(Math.random() * 50000) + 10000;
-                    
-                    // Actualizar contadores sin animación completa
-                    document.getElementById('totalPedidos').textContent = statsData.pedidosHoy;
-                    document.getElementById('ventasHoy').textContent = formatNumber(statsData.ventasHoy);
-                    
-                    // Mostrar notificación ocasional
-                    if (Math.random() > 0.9) {
-                        showNotification(`Nuevo pedido recibido - ${Math.floor(Math.random() * 50000 + 10000).toLocaleString()}`, 'success');
-                    }
-                }
-            }, 10000); // Cada 10 segundos
-        }
-
-        // Iniciar actualizaciones en tiempo real
-        setTimeout(simulateRealTimeUpdates, 5000);
-
-        // Funcionalidad de dark mode (opcional)
-        function toggleDarkMode() {
-            document.body.classList.toggle('ct-auto-dark');
-            const isDark = document.body.classList.contains('ct-auto-dark');
-            localStorage.setItem('darkMode', isDark);
-        }
-
-        // Cargar preferencia de dark mode
-        if (localStorage.getItem('darkMode') === 'true') {
-            document.body.classList.add('ct-auto-dark');
-        }
-
-        // Monitoreo de rendimiento básico
-        function performanceMonitoring() {
-            const navigation = performance.getEntriesByType('navigation')[0];
-            if (navigation) {
-                const loadTime = navigation.loadEventEnd - navigation.loadEventStart;
-                console.log(`Tiempo de carga del dashboard: ${loadTime}ms`);
-                
-                if (loadTime > 3000) {
-                    setTimeout(() => {
-                        showNotification('El dashboard tardó más de lo esperado en cargar', 'warning');
-                    }, 2000);
-                }
-            }
-        }
-
-        // Ejecutar monitoreo
-        window.addEventListener('load', performanceMonitoring);
     </script>
 </body>
 </html>

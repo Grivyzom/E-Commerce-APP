@@ -1,0 +1,594 @@
+/* ===============================================
+   ADMIN DASHBOARD CSS - ComercioTech
+   Archivo: /static/css/admin-dashboard.css
+   =============================================== */
+
+/* Base Styles */
+body {
+    background: var(--light-bg);
+    font-family: var(--font-primary);
+}
+
+/* ===============================================
+   HEADER DEL DASHBOARD
+   =============================================== */
+.admin-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 2rem 0;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 30px 30px;
+    animation: float 20s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { 
+        transform: translate(0, 0) rotate(0deg); 
+    }
+    33% { 
+        transform: translate(30px, -30px) rotate(120deg); 
+    }
+    66% { 
+        transform: translate(-20px, 20px) rotate(240deg); 
+    }
+}
+
+.admin-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.admin-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* ===============================================
+   BREADCRUMB PERSONALIZADO
+   =============================================== */
+.breadcrumb-admin {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 2;
+}
+
+.breadcrumb-admin .breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0.5rem;
+}
+
+.breadcrumb-admin .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.breadcrumb-admin .breadcrumb-item a:hover {
+    color: white;
+}
+
+.breadcrumb-admin .breadcrumb-item.active {
+    color: white;
+}
+
+/* ===============================================
+   ESTADÍSTICAS (STAT CARDS)
+   =============================================== */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+    position: relative;
+    z-index: 2;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+    display: block;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* ===============================================
+   GRID PRINCIPAL DEL DASHBOARD
+   =============================================== */
+.dashboard-grid {
+    padding: 3rem 0;
+}
+
+.dashboard-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    transition: all 0.4s ease;
+    height: 100%;
+    position: relative;
+    border-top: 4px solid var(--accent-color);
+}
+
+.dashboard-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+}
+
+.dashboard-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-color), var(--success-color));
+}
+
+/* ===============================================
+   CONTENIDO DE LAS CARDS
+   =============================================== */
+.card-header-custom {
+    padding: 2rem;
+    text-align: center;
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+}
+
+.card-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-icon::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform: rotate(45deg);
+    transition: all 0.6s ease;
+}
+
+.dashboard-card:hover .card-icon::before {
+    animation: shine 0.8s ease-in-out;
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+/* Colores específicos para cada icono */
+.icon-pedidos { 
+    background: linear-gradient(135deg, var(--accent-color), #2980b9); 
+}
+
+.icon-productos { 
+    background: linear-gradient(135deg, var(--success-color), #219a52); 
+}
+
+.icon-usuarios { 
+    background: linear-gradient(135deg, var(--warning-color), #e67e22); 
+}
+
+.icon-reportes { 
+    background: linear-gradient(135deg, var(--info-color), #1e90ff); 
+}
+
+.icon-configuracion { 
+    background: linear-gradient(135deg, var(--secondary-color), #4a5568); 
+}
+
+.icon-salir { 
+    background: linear-gradient(135deg, var(--danger-color), #c53030); 
+}
+
+.card-title-custom {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.card-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.card-footer-custom {
+    padding: 1.5rem 2rem;
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* ===============================================
+   BOTONES ADMINISTRATIVOS
+   =============================================== */
+.admin-btn {
+    background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.admin-btn:hover::before {
+    left: 100%;
+}
+
+.admin-btn:hover {
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(52, 152, 219, 0.3);
+    text-decoration: none;
+}
+
+/* Variantes de botones */
+.admin-btn-warning {
+    background: linear-gradient(135deg, var(--warning-color), #e67e22);
+}
+
+.admin-btn-warning:hover {
+    box-shadow: 0 8px 16px rgba(243, 156, 18, 0.3);
+}
+
+.admin-btn-secondary {
+    background: linear-gradient(135deg, var(--secondary-color), #4a5568);
+}
+
+.admin-btn-secondary:hover {
+    box-shadow: 0 8px 16px rgba(52, 73, 94, 0.3);
+}
+
+.admin-btn-danger {
+    background: linear-gradient(135deg, var(--danger-color), #c53030);
+}
+
+.admin-btn-danger:hover {
+    box-shadow: 0 8px 16px rgba(231, 76, 60, 0.3);
+}
+
+/* ===============================================
+   DISEÑO RESPONSIVO
+   =============================================== */
+@media (max-width: 768px) {
+    .admin-title {
+        font-size: 2rem;
+        text-align: center;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .admin-subtitle {
+        text-align: center;
+        font-size: 1rem;
+    }
+    
+    .stat-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .card-header-custom {
+        padding: 1.5rem;
+    }
+    
+    .card-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    .card-title-custom {
+        font-size: 1.25rem;
+    }
+    
+    .card-description {
+        font-size: 0.9rem;
+    }
+    
+    .admin-btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .admin-header {
+        padding: 1.5rem 0;
+    }
+    
+    .admin-title {
+        font-size: 1.75rem;
+    }
+    
+    .admin-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .dashboard-grid {
+        padding: 2rem 0;
+    }
+    
+    .dashboard-card {
+        border-radius: 15px;
+    }
+    
+    .card-header-custom {
+        padding: 1rem;
+    }
+    
+    .card-footer-custom {
+        padding: 1rem;
+    }
+    
+    .stat-card {
+        padding: 0.75rem;
+    }
+    
+    .stat-number {
+        font-size: 1.25rem;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+    }
+}
+
+/* ===============================================
+   ANIMACIONES Y EFECTOS ADICIONALES
+   =============================================== */
+
+/* Efecto de carga para las cards */
+.dashboard-card {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.dashboard-card:nth-child(1) { animation-delay: 0.1s; }
+.dashboard-card:nth-child(2) { animation-delay: 0.2s; }
+.dashboard-card:nth-child(3) { animation-delay: 0.3s; }
+.dashboard-card:nth-child(4) { animation-delay: 0.4s; }
+.dashboard-card:nth-child(5) { animation-delay: 0.5s; }
+.dashboard-card:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Efecto de pulsación para estadísticas */
+.stat-card:hover .stat-number {
+    animation: pulse 0.6s ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Efecto de gradient animado para el header */
+.admin-header {
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Efecto de hover mejorado para botones */
+.admin-btn {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.admin-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Estados de loading para botones (opcional) */
+.admin-btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.admin-btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    margin: auto;
+    border: 2px solid transparent;
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ===============================================
+   UTILIDADES ADICIONALES
+   =============================================== */
+
+/* Clases helper para espaciado */
+.dashboard-section {
+    margin-bottom: 3rem;
+}
+
+.dashboard-section:last-child {
+    margin-bottom: 0;
+}
+
+/* Estados de éxito/error para feedback */
+.admin-btn.success {
+    background: linear-gradient(135deg, var(--success-color), #219a52);
+}
+
+.admin-btn.error {
+    background: linear-gradient(135deg, var(--danger-color), #c53030);
+}
+
+/* Tooltip personalizado */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    z-index: 1000;
+}
+
+/* Mejoras de accesibilidad */
+.admin-btn:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+.stat-card:focus-within {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* Estados de modo oscuro (opcional) */
+@media (prefers-color-scheme: dark) {
+    .dashboard-card {
+        background: #2d3748;
+        color: #e2e8f0;
+    }
+    
+    .card-header-custom {
+        background: linear-gradient(135deg, #2d3748, #4a5568);
+    }
+    
+    .card-title-custom {
+        color: #e2e8f0;
+    }
+    
+    .card-description {
+        color: #a0aec0;
+    }
+    
+    .card-footer-custom {
+        background: #1a202c;
+        border-color: #4a5568;
+    }
+}
