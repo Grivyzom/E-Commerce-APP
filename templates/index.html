@@ -1,86 +1,976 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Productos</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComercioTech - Equipos de Última Generación</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/comerciotech-theme.css') }}">
+    <style>
+        body {
+            font-family: 'Inter', var(--font-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-  <!-- AOS -->
-  <link href="https://unpkg.com/aos@next/dist/aos.css" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
+        /* Header mejorado */
+        .ct-main-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(52, 152, 219, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: var(--z-fixed);
+            transition: all 0.3s ease;
+            padding: 1rem 0;
+        }
+
+        .ct-main-header.scrolled {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 0.75rem 0;
+        }
+
+        .ct-navbar-brand {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ct-navbar-brand:hover {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .ct-navbar-brand i {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .ct-nav-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .ct-user-welcome {
+            font-weight: 500;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .ct-nav-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 2px solid transparent;
+        }
+
+        .ct-nav-btn-primary {
+            background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+            color: white;
+        }
+
+        .ct-nav-btn-primary:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(52, 152, 219, 0.3);
+        }
+
+        .ct-nav-btn-outline {
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .ct-nav-btn-outline:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .ct-nav-btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .ct-nav-btn-danger:hover {
+            background: #c0392b;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .ct-hero {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            color: white;
+        }
+
+        .ct-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.05"><circle cx="30" cy="30" r="4"/></g></svg>');
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .ct-hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .ct-hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .ct-hero-subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .ct-cta-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .ct-cta-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+        }
+
+        /* Floating elements */
+        .ct-hero-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .ct-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: floatShapes 15s ease-in-out infinite;
+        }
+
+        .ct-shape:nth-child(1) {
+            width: 100px;
+            height: 100px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .ct-shape:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            top: 60%;
+            right: 15%;
+            animation-delay: 5s;
+        }
+
+        .ct-shape:nth-child(3) {
+            width: 80px;
+            height: 80px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 10s;
+        }
+
+        @keyframes floatShapes {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 1;
+            }
+        }
+
+        /* Products Section */
+        .ct-products-section {
+            padding: 5rem 0;
+            background: var(--light-bg);
+            position: relative;
+        }
+
+        .ct-section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .ct-section-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Product Cards */
+        .ct-product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s ease;
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ct-product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .ct-product-image {
+            position: relative;
+            overflow: hidden;
+            height: 250px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+
+        .ct-product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .ct-product-card:hover .ct-product-image img {
+            transform: scale(1.1);
+        }
+
+        .ct-product-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, var(--success-color), var(--accent-color));
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .ct-product-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ct-product-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .ct-product-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .ct-product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .ct-product-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--success-color);
+        }
+
+        .ct-add-to-cart {
+            background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ct-add-to-cart:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(52, 152, 219, 0.3);
+            text-decoration: none;
+        }
+
+        /* Features Section */
+        .ct-features {
+            padding: 4rem 0;
+            background: white;
+        }
+
+        .ct-feature-item {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        .ct-feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+        }
+
+        .ct-feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .ct-feature-text {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .ct-footer {
+            background: var(--primary-color);
+            color: white;
+            padding: 3rem 0 2rem;
+            text-align: center;
+        }
+
+        .ct-footer-content {
+            margin-bottom: 2rem;
+        }
+
+        .ct-footer-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .ct-footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .ct-footer-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .ct-footer-link:hover {
+            color: white;
+            text-decoration: none;
+        }
+
+        .ct-footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 2rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Animations */
+        .ct-fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .ct-fade-in.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .ct-slide-in-left {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.6s ease;
+        }
+
+        .ct-slide-in-left.animate {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .ct-slide-in-right {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.6s ease;
+        }
+
+        .ct-slide-in-right.animate {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .ct-hero-title {
+                font-size: 2.5rem;
+            }
+
+            .ct-hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .ct-section-title {
+                font-size: 2rem;
+            }
+
+            .ct-nav-user {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .ct-navbar-brand {
+                font-size: 1.5rem;
+            }
+
+            .ct-product-image {
+                height: 200px;
+            }
+
+            .ct-footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Scroll indicator */
+        .ct-scroll-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-color), var(--success-color));
+            z-index: var(--z-tooltip);
+            transition: width 0.1s ease;
+        }
+
+        /* Loading animation for products */
+        .ct-products-loading {
+            display: none;
+            text-align: center;
+            padding: 3rem 0;
+        }
+
+        .ct-loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(52, 152, 219, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--accent-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <header class="fixed top-0 left-0 w-full bg-white/70 backdrop-blur-md shadow-md z-50">
-    <nav class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-        <div class="text-lg font-semibold text-indigo-700">
-        {% if session.usuario %}
-            Bienvenido, {{ session.usuario }}
-        {% endif %}
+<body>
+    <!-- Scroll Progress Indicator -->
+    <div class="ct-scroll-indicator" id="scrollIndicator"></div>
+
+    <!-- Header -->
+    <header class="ct-main-header" id="mainHeader">
+        <div class="container">
+            <nav class="d-flex justify-content-between align-items-center">
+                <a href="{{ url_for('index') }}" class="ct-navbar-brand">
+                    <i class="fas fa-laptop-code"></i>
+                    ComercioTech
+                </a>
+
+                <div class="ct-nav-user">
+                    {% if session.usuario %}
+                        <p class="ct-user-welcome mb-0">
+                            <i class="fas fa-user-circle me-2"></i>
+                            Bienvenido, <strong>{{ session.usuario }}</strong>
+                        </p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="{{ url_for('ver_carrito') }}" class="ct-nav-btn ct-nav-btn-outline">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>Carrito</span>
+                            </a>
+                            <a href="{{ url_for('mis_pedidos') }}" class="ct-nav-btn ct-nav-btn-outline">
+                                <i class="fas fa-box"></i>
+                                <span>Mis Pedidos</span>
+                            </a>
+                            <a href="{{ url_for('logout') }}" class="ct-nav-btn ct-nav-btn-danger">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Salir</span>
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('login') }}" class="ct-nav-btn ct-nav-btn-outline">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Iniciar Sesión</span>
+                            </a>
+                            <a href="{{ url_for('registro') }}" class="ct-nav-btn ct-nav-btn-primary">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Registrarse</span>
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </nav>
         </div>
-        <div class="space-x-4">
-        {% if session.usuario %}
-            <a href="{{ url_for('ver_carrito') }}"
-            class="inline-flex items-center space-x-1 text-indigo-600 hover:text-indigo-800 transition">
-            <span>🛒</span><span>Ver carrito</span>
-            </a>
-            <a href="{{ url_for('mis_pedidos') }}"
-            class="inline-flex items-center space-x-1 text-indigo-600 hover:text-indigo-800 transition">
-            <span>📦</span><span>Mis pedidos</span>
-            </a>
-            <a href="{{ url_for('logout') }}"
-            class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition">
-            Cerrar sesión
-            </a>
-        {% else %}
-            <a href="{{ url_for('login') }}"
-            class="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
-            Iniciar sesión
-            </a>
-        {% endif %}
-        </div>
-    </nav>
     </header>
 
-<div class="h-20"></div>
+    <!-- Hero Section -->
+    <section class="ct-hero">
+        <div class="ct-hero-shapes">
+            <div class="ct-shape"></div>
+            <div class="ct-shape"></div>
+            <div class="ct-shape"></div>
+        </div>
+        
+        <div class="container">
+            <div class="ct-hero-content ct-fade-in">
+                <h1 class="ct-hero-title">
+                    Potencia tu productividad con equipos de última generación
+                </h1>
+                <p class="ct-hero-subtitle">
+                    Descubre nuestra selección de notebooks, periféricos y accesorios tecnológicos 
+                    con la mejor calidad y garantía del mercado.
+                </p>
+                <a href="#productos" class="ct-cta-button" id="scrollToProducts">
+                    <i class="fas fa-rocket"></i>
+                    <span>Explorar Productos</span>
+                </a>
+            </div>
+        </div>
+    </section>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-content" data-aos="zoom-in">
-      <h1>Potencia tu productividad con equipos de última generación</h1>
-      <p>Encuentra notebooks, periféricos y mucho más, con garantía y envío rápido.</p>
-      <a href="#productos" class="cta-button">Ver productos</a>
-    </div>
-  </section>
+    <!-- Features Section -->
+    <section class="ct-features">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="ct-feature-item ct-slide-in-left">
+                        <div class="ct-feature-icon">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <h3 class="ct-feature-title">Envío Rápido</h3>
+                        <p class="ct-feature-text">
+                            Entrega gratuita en compras sobre $50.000 
+                            y envío express disponible.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="ct-feature-item ct-slide-in-left" style="animation-delay: 0.2s;">
+                        <div class="ct-feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3 class="ct-feature-title">Garantía Extendida</h3>
+                        <p class="ct-feature-text">
+                            Todos nuestros productos incluyen 
+                            garantía oficial y soporte técnico.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="ct-feature-item ct-slide-in-right">
+                        <div class="ct-feature-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <h3 class="ct-feature-title">Soporte 24/7</h3>
+                        <p class="ct-feature-text">
+                            Atención al cliente disponible todos los días 
+                            para resolver tus consultas.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="ct-feature-item ct-slide-in-right" style="animation-delay: 0.2s;">
+                        <div class="ct-feature-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <h3 class="ct-feature-title">Pago Seguro</h3>
+                        <p class="ct-feature-text">
+                            Múltiples opciones de pago con 
+                            la máxima seguridad en transacciones.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <!-- PRODUCTOS -->
-  <section id="productos" class="productos-seccion">
-    <h2 data-aos="fade-up">Productos disponibles</h2>
-    <div class="contenedor">
-      {% for producto in productos %}
-      <div class="card" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
-        <img src="{{ url_for('static', filename='img/' + producto.imagen_url) }}"
-             alt="{{ producto.nombre }}">
-        <h3>{{ producto.nombre }}</h3>
-        <p>${{ "{:,.0f}".format(producto.precio|float) }}</p>
-        <a href="{{ url_for('agregar', producto_id=producto.id_producto) }}"
-           class="boton">Agregar al carrito</a>
-      </div>
-      {% endfor %}
-    </div>
-  </section>
+    <!-- Products Section -->
+    <section id="productos" class="ct-products-section">
+        <div class="container">
+            <div class="ct-fade-in">
+                <h2 class="ct-section-title">Productos Destacados</h2>
+                <p class="ct-section-subtitle">
+                    Selección especial de equipos tecnológicos para potenciar tu trabajo y entretenimiento
+                </p>
+            </div>
 
-  <footer class="footer" data-aos="fade-up">
-    <p>&copy; 2025 ComercioTech. Todos los derechos reservados.</p>
-  </footer>
+            <!-- Loading State -->
+            <div class="ct-products-loading" id="productsLoading">
+                <div class="ct-loading-spinner"></div>
+                <p class="mt-3 text-muted">Cargando productos...</p>
+            </div>
 
-  <!-- AOS Script -->
-  <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-  <script>
-    AOS.init({ 
-      duration: 800,
-      once: true
-    });
-  </script>
+            <!-- Products Grid -->
+            <div class="row" id="productsGrid">
+                {% for producto in productos %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="ct-product-card ct-fade-in" style="animation-delay: {{ loop.index0 * 0.1 }}s;">
+                        <div class="ct-product-image">
+                            {% if loop.index0 == 0 %}
+                                <div class="ct-product-badge">Destacado</div>
+                            {% elif loop.index0 == 1 %}
+                                <div class="ct-product-badge">Nuevo</div>
+                            {% endif %}
+                            <img src="{{ url_for('static', filename='img/' + (producto.imagen_url or 'placeholder.jpg')) }}" 
+                                 alt="{{ producto.nombre }}"
+                                 onerror="this.src='{{ url_for('static', filename='img/placeholder.jpg') }}'">
+                        </div>
+                        <div class="ct-product-content">
+                            <h3 class="ct-product-title">{{ producto.nombre }}</h3>
+                            <p class="ct-product-description">
+                                {{ producto.descripcion or 'Producto de alta calidad con las mejores especificaciones del mercado.' }}
+                            </p>
+                            <div class="ct-product-footer">
+                                <span class="ct-product-price">
+                                    ${{ "{:,.0f}".format(producto.precio|float) }}
+                                </span>
+                                {% if session.usuario %}
+                                    <a href="{{ url_for('agregar', producto_id=producto.id_producto) }}" 
+                                       class="ct-add-to-cart" 
+                                       onclick="addToCartAnimation(this)">
+                                        <i class="fas fa-cart-plus"></i>
+                                        <span>Agregar</span>
+                                    </a>
+                                {% else %}
+                                    <a href="{{ url_for('login') }}" class="ct-add-to-cart">
+                                        <i class="fas fa-sign-in-alt"></i>
+                                        <span>Iniciar Sesión</span>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if not productos %}
+            <div class="text-center py-5">
+                <div class="ct-fade-in">
+                    <i class="fas fa-box-open" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                    <h3 style="color: var(--text-secondary);">No hay productos disponibles</h3>
+                    <p class="text-muted">Pronto agregaremos nuevos productos a nuestro catálogo.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="ct-footer">
+        <div class="container">
+            <div class="ct-footer-content">
+                <div class="ct-footer-brand">
+                    <i class="fas fa-laptop-code me-2"></i>
+                    ComercioTech
+                </div>
+                <div class="ct-footer-links">
+                    <a href="#" class="ct-footer-link">Sobre Nosotros</a>
+                    <a href="#" class="ct-footer-link">Términos de Servicio</a>
+                    <a href="#" class="ct-footer-link">Política de Privacidad</a>
+                    <a href="#" class="ct-footer-link">Contacto</a>
+                    <a href="#" class="ct-footer-link">Soporte</a>
+                </div>
+                <div class="ct-footer-links">
+                    <a href="#" class="ct-footer-link">
+                        <i class="fab fa-facebook-f me-1"></i>Facebook
+                    </a>
+                    <a href="#" class="ct-footer-link">
+                        <i class="fab fa-twitter me-1"></i>Twitter
+                    </a>
+                    <a href="#" class="ct-footer-link">
+                        <i class="fab fa-instagram me-1"></i>Instagram
+                    </a>
+                    <a href="#" class="ct-footer-link">
+                        <i class="fab fa-linkedin me-1"></i>LinkedIn
+                    </a>
+                </div>
+            </div>
+            <div class="ct-footer-bottom">
+                <p>&copy; 2025 ComercioTech. Todos los derechos reservados. | Diseñado con ❤️ para potenciar tu productividad</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Scroll Progress Indicator
+        window.addEventListener('scroll', function() {
+            const scrollTop = document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrollPercent = (scrollTop / scrollHeight) * 100;
+            document.getElementById('scrollIndicator').style.width = scrollPercent + '%';
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('mainHeader');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scroll for CTA button
+        document.getElementById('scrollToProducts').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('productos').scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all animation elements
+        document.addEventListener('DOMContentLoaded', function() {
+            const animatedElements = document.querySelectorAll('.ct-fade-in, .ct-slide-in-left, .ct-slide-in-right');
+            animatedElements.forEach(el => observer.observe(el));
+        });
+
+        // Add to cart animation
+        function addToCartAnimation(button) {
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Agregando...</span>';
+            button.style.pointerEvents = 'none';
+            
+            setTimeout(() => {
+                button.innerHTML = '<i class="fas fa-check"></i> <span>¡Agregado!</span>';
+                button.style.background = 'var(--success-color)';
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.background = '';
+                    button.style.pointerEvents = '';
+                }, 1500);
+            }, 1000);
+        }
+
+        // Parallax effect for hero shapes
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const shapes = document.querySelectorAll('.ct-shape');
+            
+            shapes.forEach((shape, index) => {
+                const speed = 0.5 + (index * 0.2);
+                shape.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+        });
+
+        // Dynamic product loading simulation
+        function simulateProductLoading() {
+            const productsGrid = document.getElementById('productsGrid');
+            const loadingDiv = document.getElementById('productsLoading');
+            
+            // Show loading for demonstration (remove in production)
+            if (productsGrid.children.length === 0) {
+                loadingDiv.style.display = 'block';
+                
+                setTimeout(() => {
+                    loadingDiv.style.display = 'none';
+                    // Products would be loaded here via AJAX
+                }, 1500);
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Trigger hero animation
+            setTimeout(() => {
+                document.querySelector('.ct-hero-content').classList.add('animate');
+            }, 300);
+
+            // Stagger feature animations
+            const features = document.querySelectorAll('.ct-feature-item');
+            features.forEach((feature, index) => {
+                setTimeout(() => {
+                    feature.classList.add('animate');
+                }, 600 + (index * 200));
+            });
+
+            // Add notification system
+            window.showNotification = function(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `position-fixed top-0 end-0 m-3 alert alert-${type} alert-dismissible fade show`;
+                notification.style.zIndex = '9999';
+                notification.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 5000);
+            };
+        });
+
+        // Product search functionality (for future enhancement)
+        function initProductSearch() {
+            const searchInput = document.createElement('input');
+            searchInput.type = 'text';
+            searchInput.placeholder = 'Buscar productos...';
+            searchInput.className = 'form-control';
+            
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const productCards = document.querySelectorAll('.ct-product-card');
+                
+                productCards.forEach(card => {
+                    const title = card.querySelector('.ct-product-title').textContent.toLowerCase();
+                    const description = card.querySelector('.ct-product-description').textContent.toLowerCase();
+                    
+                    if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                        card.parentElement.style.display = 'block';
+                    } else {
+                        card.parentElement.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + K to focus search (when implemented)
+            if (e.ctrlKey && e.key === 'k') {
+                e.preventDefault();
+                // Focus search input when available
+            }
+            
+            // Escape to scroll to top
+            if (e.key === 'Escape') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+
+        // Performance optimization: Lazy load images
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove('lazy');
+                        imageObserver.unobserve(img);
+                    }
+                });
+            });
+
+            // Observe all images with data-src attribute
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
+    </script>
 </body>
 </html>
