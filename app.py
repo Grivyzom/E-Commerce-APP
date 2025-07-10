@@ -349,7 +349,6 @@ def logout():
     flash("Sesión cerrada.")
     return redirect(url_for("index"))
 
-
 @app.route("/agregar/<int:producto_id>")
 def agregar(producto_id):
     if "user_id" not in session:
@@ -889,10 +888,125 @@ def admin_cambiar_estado(pedido_id):
         query = "UPDATE pedidos SET estado = %s WHERE id_pedido = %s"
         db.execute_query(query, (nuevo_estado, pedido_id))
         
-        flash("Estado del pedido actualizado")
+        flash("Estado del pedido actualizado exitosamente")
         return redirect(url_for("admin_ver_pedido", pedido_id=pedido_id))
     
     return redirect(url_for("admin_ver_pedido", pedido_id=pedido_id))
+
+
+# Ruta para API JSON (para el panel moderno)
+@app.route("/admin/api/pedidos")
+def admin_api_pedidos():
+    if session.get("rol") != "admin":
+        return jsonify({"error": "No autorizado"}), 403
+    
+    try:
+        query = """
+        SELECT p.id_pedido, u.nombre as cliente, u.email, 
+               p.fecha_pedido, p.total, p.estado, p.direccion_envio
+        FROM pedidos p
+        JOIN usuarios u ON p.id_usuario = u.id_usuario
+        ORDER BY p.fecha_pedido DESC
+        """
+        
+        pedidos_db = db.execute_query(query, fetch=True)
+        
+        # Convertir a formato JSON serializable
+        pedidos = []
+        for p in pedidos_db:
+            pedido = {
+                "id": p["id_pedido"],
+                "cliente": p["cliente"],
+                "email": p["email"],
+                "fecha": p["fecha_pedido"].strftime('%Y-%m-%d %H:%M') if hasattr(p["fecha_pedido"], 'strftime') else str(p["fecha_pedido"]),
+                "estado": p["estado"],
+                "total": float(p["total"]),
+                "direccion": p["direccion_envio"]
+            }
+            
+            # Obtener productos del pedido
+            query_productos = """
+            SELECT dp.cantidad, dp.precio_unitario, pr.nombre as nombre_producto
+            FROM detalles_pedido dp
+            JOIN productos pr ON dp.id_producto = pr.id_producto
+            WHERE dp.id_pedido = %s
+            """
+            productos_db = db.execute_query(query_productos, (p["id_pedido"],), fetch=True)
+            
+            pedido["productos"] = []
+            for prod in productos_db:
+                pedido["productos"].append({
+                    "nombre": prod["nombre_producto"],
+                    "cantidad": prod["cantidad"],
+                    "precio": float(prod["precio_unitario"])
+                })
+            
+            pedidos.append(pedido)
+        
+        return jsonify(pedidos)
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/admin/api/pedido/<int:pedido_id>/estado", methods=["PUT"])
+def admin_api_cambiar_estado(pedido_id):
+    if session.get("rol") != "admin":
+        return jsonify({"error": "No autorizado"}), 403
+    
+    try:
+        data = request.get_json()
+        nuevo_estado = data.get("estado")
+        
+        if not nuevo_estado:
+            return jsonify({"error": "Estado requerido"}), 400
+        
+        query = "UPDATE pedidos SET estado = %s WHERE id_pedido = %s"
+        result = db.execute_query(query, (nuevo_estado, pedido_id))
+        
+        if result > 0:
+            return jsonify({"success": True, "mensaje": f"Estado actualizado a {nuevo_estado}"})
+        else:
+            return jsonify({"error": "Pedido no encontrado"}), 404
+            
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Ruta para estadísticas del dashboard
+@app.route("/admin/api/estadisticas")
+def admin_api_estadisticas():
+    if session.get("rol") != "admin":
+        return jsonify({"error": "No autorizado"}), 403
+    
+    try:
+        # Total de pedidos
+        query_total = "SELECT COUNT(*) as total FROM pedidos"
+        total_result = db.execute_query(query_total, fetch=True)
+        total_pedidos = total_result[0]["total"] if total_result else 0
+        
+        # Pedidos pendientes
+        query_pendientes = "SELECT COUNT(*) as pendientes FROM pedidos WHERE estado = 'Pendiente'"
+        pendientes_result = db.execute_query(query_pendientes, fetch=True)
+        pedidos_pendientes = pendientes_result[0]["pendientes"] if pendientes_result else 0
+        
+        # Pedidos entregados
+        query_entregados = "SELECT COUNT(*) as entregados FROM pedidos WHERE estado = 'Entregado'"
+        entregados_result = db.execute_query(query_entregados, fetch=True)
+        pedidos_entregados = entregados_result[0]["entregados"] if entregados_result else 0
+        
+        # Ventas totales
+        query_ventas = "SELECT SUM(total) as ventas_total FROM pedidos WHERE estado != 'Cancelado'"
+        ventas_result = db.execute_query(query_ventas, fetch=True)
+        ventas_total = float(ventas_result[0]["ventas_total"]) if ventas_result and ventas_result[0]["ventas_total"] else 0
+        
+        return jsonify({
+            "total_pedidos": total_pedidos,
+            "pedidos_pendientes": pedidos_pendientes,
+            "pedidos_entregados": pedidos_entregados,
+            "ventas_total": ventas_total
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # AQUÍ VA EL if __name__ == "__main__":
 if __name__ == "__main__":

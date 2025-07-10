@@ -2,52 +2,1068 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel de Administración - Pedidos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Gestión de Pedidos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stats-container {
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            opacity: 0.7;
+        }
+
+        .filters-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .custom-table {
+            margin: 0;
+        }
+
+        .custom-table thead th {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .custom-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .custom-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .custom-table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: #dee2e6;
+        }
+
+        .badge-status {
+            padding: 0.5rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pendiente {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .status-en-preparacion {
+            background-color: #cce5ff;
+            color: #004085;
+            border: 1px solid #74b9ff;
+        }
+
+        .status-enviado {
+            background-color: #e2d5f1;
+            color: #5a2d82;
+            border: 1px solid #a29bfe;
+        }
+
+        .status-entregado {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #00b894;
+        }
+
+        .status-cancelado {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #fd79a8;
+        }
+
+        .action-btn {
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 0.2rem;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-view {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn-view:hover {
+            background-color: #2980b9;
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-edit {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background-color: #e67e22;
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-delete {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background-color: #c0392b;
+            color: white;
+        }
+
+        .pagination-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        .search-box {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .search-box:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .filter-select {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .export-btn {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+
+        .export-btn:hover {
+            background-color: #219a52;
+        }
+
+        .breadcrumb-custom {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 1rem;
+        }
+
+        .breadcrumb-custom .breadcrumb-item + .breadcrumb-item::before {
+            content: "›";
+            font-weight: bold;
+            color: white;
+        }
+
+        .breadcrumb-custom .breadcrumb-item a {
+            color: #bdc3c7;
+            text-decoration: none;
+        }
+
+        .breadcrumb-custom .breadcrumb-item.active {
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .table-responsive {
+            border-radius: 0 0 12px 12px;
+        }
+
+        .modal-header {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .modal-header .btn-close {
+            filter: invert(1);
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+            
+            .action-btn {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.75rem;
+                margin: 0.1rem;
+                display: block;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
+    <!-- Header Principal -->
+    <header class="main-header">
+        <div class="container">
+            <nav aria-label="breadcrumb" class="breadcrumb-custom">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="#" onclick="goToAdminDashboard()">
+                            <i class="fas fa-home"></i> Panel Admin
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">Gestión de Pedidos</li>
+                </ol>
+            </nav>
+            <h1 class="page-title">
+                <i class="fas fa-shopping-cart"></i>
+                Gestión de Pedidos
+            </h1>
+        </div>
+    </header>
 
-<div class="container mt-5">
-    <h2 class="mb-4">📋 Panel de Administración - Pedidos</h2>
-    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary mb-3">← Volver al panel</a>
+    <div class="container mt-4">
+        <!-- Estadísticas -->
+        <div class="stats-container">
+            <div class="row">
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="stat-number" id="totalPedidos">0</p>
+                                <p class="stat-label">Total Pedidos</p>
+                            </div>
+                            <i class="fas fa-shopping-bag stat-icon text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="stat-number" id="pedidosPendientes">0</p>
+                                <p class="stat-label">Pendientes</p>
+                            </div>
+                            <i class="fas fa-clock stat-icon text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="stat-number" id="pedidosEntregados">0</p>
+                                <p class="stat-label">Entregados</p>
+                            </div>
+                            <i class="fas fa-check-circle stat-icon text-success"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="stat-number" id="ventasTotal">$0</p>
+                                <p class="stat-label">Ventas Totales</p>
+                            </div>
+                            <i class="fas fa-dollar-sign stat-icon text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <table class="table table-hover bg-white shadow-sm">
-        <thead class="table-dark">
-            <tr>
-                <th>ID Pedido</th>
-                <th>Cliente</th>
-                <th>Fecha</th>
-                <th>Total</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for pedido in pedidos %}
-            <tr>
-                <td>#{{ pedido.id_pedido }}</td>
-                <td>{{ pedido.cliente }}</td>
-                <td>{{ pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M') if pedido.fecha_pedido.strftime else pedido.fecha_pedido }}</td>
-                <td>${{ "{:,.0f}".format(pedido.total) }}</td>
-                <td>
-                    <span class="badge bg-primary">{{ pedido.estado }}</span>
-                </td>
-                <td>
-                    <a href="{{ url_for('admin_ver_pedido', pedido_id=pedido.id_pedido) }}" class="btn btn-primary btn-sm">Ver</a>
-                    <a href="{{ url_for('admin_cambiar_estado', pedido_id=pedido.id_pedido) }}" class="btn btn-warning btn-sm">Cambiar estado</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    
-    {% if not pedidos %}
-    <div class="text-center py-5">
-        <h4>No hay pedidos registrados</h4>
-        <p class="text-muted">Los pedidos aparecerán aquí cuando los clientes realicen compras.</p>
+        <!-- Filtros y Búsqueda -->
+        <div class="filters-section">
+            <div class="row align-items-end">
+                <div class="col-md-4 mb-3">
+                    <label for="searchInput" class="form-label fw-bold">
+                        <i class="fas fa-search"></i> Buscar Pedidos
+                    </label>
+                    <input type="text" class="form-control search-box" id="searchInput" 
+                           placeholder="Buscar por ID, cliente o email...">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="statusFilter" class="form-label fw-bold">
+                        <i class="fas fa-filter"></i> Estado
+                    </label>
+                    <select class="form-select filter-select" id="statusFilter">
+                        <option value="">Todos los estados</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="en-preparacion">En Preparación</option>
+                        <option value="enviado">Enviado</option>
+                        <option value="entregado">Entregado</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="dateFilter" class="form-label fw-bold">
+                        <i class="fas fa-calendar"></i> Fecha
+                    </label>
+                    <select class="form-select filter-select" id="dateFilter">
+                        <option value="">Todas las fechas</option>
+                        <option value="today">Hoy</option>
+                        <option value="week">Esta semana</option>
+                        <option value="month">Este mes</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <button class="btn export-btn w-100" onclick="exportarPedidos()">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Pedidos -->
+        <div class="table-container">
+            <h3 class="table-header">
+                <i class="fas fa-list"></i> Lista de Pedidos
+            </h3>
+            <div class="table-responsive">
+                <table class="table custom-table" id="pedidosTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID Pedido</th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pedidosTableBody">
+                        <!-- Los pedidos se cargarán aquí dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        <div class="pagination-container">
+            <nav aria-label="Navegación de pedidos">
+                <ul class="pagination justify-content-center mb-0" id="pagination">
+                    <!-- La paginación se generará dinámicamente -->
+                </ul>
+            </nav>
+        </div>
     </div>
-    {% endif %}
-</div>
 
+    <!-- Modal para Ver Detalles del Pedido -->
+    <div class="modal fade" id="pedidoModal" tabindex="-1" aria-labelledby="pedidoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pedidoModalLabel">
+                        <i class="fas fa-eye"></i> Detalles del Pedido
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="pedidoModalBody">
+                    <!-- El contenido se cargará dinámicamente -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="editarEstadoPedido()">
+                        <i class="fas fa-edit"></i> Cambiar Estado
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Cambiar Estado -->
+    <div class="modal fade" id="cambiarEstadoModal" tabindex="-1" aria-labelledby="cambiarEstadoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cambiarEstadoModalLabel">
+                        <i class="fas fa-edit"></i> Cambiar Estado del Pedido
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="cambiarEstadoForm">
+                        <input type="hidden" id="pedidoIdEstado">
+                        <div class="mb-3">
+                            <label for="nuevoEstado" class="form-label fw-bold">Nuevo Estado:</label>
+                            <select class="form-select" id="nuevoEstado" required>
+                                <option value="">Seleccionar estado...</option>
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="En preparación">En Preparación</option>
+                                <option value="Enviado">Enviado</option>
+                                <option value="Entregado">Entregado</option>
+                                <option value="Cancelado">Cancelado</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notasEstado" class="form-label fw-bold">Notas (opcional):</label>
+                            <textarea class="form-control" id="notasEstado" rows="3" 
+                                    placeholder="Agregar notas sobre el cambio de estado..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="guardarCambioEstado()">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Datos de ejemplo (en una aplicación real, estos vendrían del backend)
+        let pedidosData = [
+            {
+                id: 1,
+                cliente: "Juan Pérez",
+                email: "juan@email.com",
+                fecha: "2025-07-09 10:30",
+                estado: "Pendiente",
+                total: 299990,
+                productos: [
+                    { nombre: "Notebook Gamer", cantidad: 1, precio: 299990 }
+                ],
+                direccion: "Av. Libertad 123, Santiago"
+            },
+            {
+                id: 2,
+                cliente: "María González",
+                email: "maria@email.com",
+                fecha: "2025-07-08 15:45",
+                estado: "En preparación",
+                total: 89980,
+                productos: [
+                    { nombre: "Mouse Inalámbrico", cantidad: 2, precio: 14990 },
+                    { nombre: "Teclado Mecánico", cantidad: 2, precio: 29990 }
+                ],
+                direccion: "Los Robles 456, Valparaíso"
+            },
+            {
+                id: 3,
+                cliente: "Carlos Rodríguez",
+                email: "carlos@email.com",
+                fecha: "2025-07-07 09:15",
+                estado: "Enviado",
+                total: 44980,
+                productos: [
+                    { nombre: "Teclado Mecánico", cantidad: 1, precio: 29990 },
+                    { nombre: "Mouse Inalámbrico", cantidad: 1, precio: 14990 }
+                ],
+                direccion: "Santa Rosa 789, Concepción"
+            },
+            {
+                id: 4,
+                cliente: "Ana Silva",
+                email: "ana@email.com",
+                fecha: "2025-07-06 14:20",
+                estado: "Entregado",
+                total: 314980,
+                productos: [
+                    { nombre: "Notebook Gamer", cantidad: 1, precio: 299990 },
+                    { nombre: "Mouse Inalámbrico", cantidad: 1, precio: 14990 }
+                ],
+                direccion: "Pedro Montt 321, La Serena"
+            },
+            {
+                id: 5,
+                cliente: "Luis Morales",
+                email: "luis@email.com",
+                fecha: "2025-07-05 11:00",
+                estado: "Cancelado",
+                total: 59980,
+                productos: [
+                    { nombre: "Teclado Mecánico", cantidad: 2, precio: 29990 }
+                ],
+                direccion: "Maipú 654, Temuco"
+            }
+        ];
+
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let filteredPedidos = [...pedidosData];
+
+        // Inicializar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            actualizarEstadisticas();
+            renderizarTabla();
+            configurarEventos();
+        });
+
+        function actualizarEstadisticas() {
+            const total = pedidosData.length;
+            const pendientes = pedidosData.filter(p => p.estado === 'Pendiente').length;
+            const entregados = pedidosData.filter(p => p.estado === 'Entregado').length;
+            const ventasTotal = pedidosData.reduce((sum, p) => sum + p.total, 0);
+
+            document.getElementById('totalPedidos').textContent = total;
+            document.getElementById('pedidosPendientes').textContent = pendientes;
+            document.getElementById('pedidosEntregados').textContent = entregados;
+            document.getElementById('ventasTotal').textContent = formatearPrecio(ventasTotal);
+        }
+
+        function formatearPrecio(precio) {
+            return new Intl.NumberFormat('es-CL', {
+                style: 'currency',
+                currency: 'CLP',
+                minimumFractionDigits: 0
+            }).format(precio);
+        }
+
+        function formatearFecha(fecha) {
+            return new Date(fecha).toLocaleDateString('es-CL', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function getEstadoClass(estado) {
+            const normalizado = estado.toLowerCase().replace(' ', '-');
+            return `status-${normalizado}`;
+        }
+
+        function renderizarTabla() {
+            const tbody = document.getElementById('pedidosTableBody');
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pedidosPagina = filteredPedidos.slice(startIndex, endIndex);
+
+            if (pedidosPagina.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h4>No se encontraron pedidos</h4>
+                            <p>No hay pedidos que coincidan con los filtros aplicados.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = pedidosPagina.map(pedido => `
+                <tr>
+                    <td>
+                        <strong>#${pedido.id}</strong>
+                    </td>
+                    <td>
+                        <div>
+                            <strong>${pedido.cliente}</strong>
+                            <br>
+                            <small class="text-muted">${pedido.email}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <small>${formatearFecha(pedido.fecha)}</small>
+                    </td>
+                    <td>
+                        <span class="badge-status ${getEstadoClass(pedido.estado)}">
+                            ${pedido.estado}
+                        </span>
+                    </td>
+                    <td>
+                        <strong>${formatearPrecio(pedido.total)}</strong>
+                    </td>
+                    <td>
+                        <button class="action-btn btn-view" onclick="verDetallesPedido(${pedido.id})">
+                            <i class="fas fa-eye"></i> Ver
+                        </button>
+                        <button class="action-btn btn-edit" onclick="abrirCambiarEstado(${pedido.id})">
+                            <i class="fas fa-edit"></i> Estado
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            renderizarPaginacion();
+        }
+
+        function renderizarPaginacion() {
+            const totalPages = Math.ceil(filteredPedidos.length / itemsPerPage);
+            const pagination = document.getElementById('pagination');
+
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let paginationHTML = '';
+
+            // Botón anterior
+            paginationHTML += `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="cambiarPagina(${currentPage - 1})">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            `;
+
+            // Números de página
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    paginationHTML += `
+                        <li class="page-item ${i === currentPage ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="cambiarPagina(${i})">${i}</a>
+                        </li>
+                    `;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                }
+            }
+
+            // Botón siguiente
+            paginationHTML += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="cambiarPagina(${currentPage + 1})">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            `;
+
+            pagination.innerHTML = paginationHTML;
+        }
+
+        function cambiarPagina(pagina) {
+            const totalPages = Math.ceil(filteredPedidos.length / itemsPerPage);
+            if (pagina >= 1 && pagina <= totalPages) {
+                currentPage = pagina;
+                renderizarTabla();
+            }
+        }
+
+        function configurarEventos() {
+            // Búsqueda en tiempo real
+            document.getElementById('searchInput').addEventListener('input', function() {
+                aplicarFiltros();
+            });
+
+            // Filtros
+            document.getElementById('statusFilter').addEventListener('change', aplicarFiltros);
+            document.getElementById('dateFilter').addEventListener('change', aplicarFiltros);
+        }
+
+        function aplicarFiltros() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+
+            filteredPedidos = pedidosData.filter(pedido => {
+                // Filtro de búsqueda
+                const matchesSearch = !searchTerm || 
+                    pedido.id.toString().includes(searchTerm) ||
+                    pedido.cliente.toLowerCase().includes(searchTerm) ||
+                    pedido.email.toLowerCase().includes(searchTerm);
+
+                // Filtro de estado
+                const matchesStatus = !statusFilter || 
+                    pedido.estado.toLowerCase().replace(' ', '-') === statusFilter;
+
+                // Filtro de fecha
+                let matchesDate = true;
+                if (dateFilter) {
+                    const pedidoFecha = new Date(pedido.fecha);
+                    const hoy = new Date();
+                    
+                    switch (dateFilter) {
+                        case 'today':
+                            matchesDate = pedidoFecha.toDateString() === hoy.toDateString();
+                            break;
+                        case 'week':
+                            const unaSemanaAtras = new Date(hoy.getTime() - 7 * 24 * 60 * 60 * 1000);
+                            matchesDate = pedidoFecha >= unaSemanaAtras;
+                            break;
+                        case 'month':
+                            matchesDate = pedidoFecha.getMonth() === hoy.getMonth() && 
+                                        pedidoFecha.getFullYear() === hoy.getFullYear();
+                            break;
+                    }
+                }
+
+                return matchesSearch && matchesStatus && matchesDate;
+            });
+
+            currentPage = 1;
+            renderizarTabla();
+        }
+
+        function verDetallesPedido(pedidoId) {
+            const pedido = pedidosData.find(p => p.id === pedidoId);
+            if (!pedido) return;
+
+            const modalBody = document.getElementById('pedidoModalBody');
+            modalBody.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-primary">
+                            <i class="fas fa-info-circle"></i> Información del Pedido
+                        </h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>ID Pedido:</strong></td>
+                                <td>#${pedido.id}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cliente:</strong></td>
+                                <td>${pedido.cliente}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Email:</strong></td>
+                                <td>${pedido.email}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fecha:</strong></td>
+                                <td>${formatearFecha(pedido.fecha)}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Estado:</strong></td>
+                                <td>
+                                    <span class="badge-status ${getEstadoClass(pedido.estado)}">
+                                        ${pedido.estado}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dirección:</strong></td>
+                                <td>${pedido.direccion}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-primary">
+                            <i class="fas fa-box"></i> Productos del Pedido
+                        </h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Cant.</th>
+                                        <th>Precio</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${pedido.productos.map(producto => `
+                                        <tr>
+                                            <td>${producto.nombre}</td>
+                                            <td>${producto.cantidad}</td>
+                                            <td>${formatearPrecio(producto.precio)}</td>
+                                            <td>${formatearPrecio(producto.precio * producto.cantidad)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-success">
+                                        <th colspan="3">Total:</th>
+                                        <th>${formatearPrecio(pedido.total)}</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h6 class="fw-bold text-primary">
+                        <i class="fas fa-timeline"></i> Historial de Estados
+                    </h6>
+                    <div class="timeline-pedido">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-circle text-success me-2"></i>
+                            <span><strong>Pedido creado</strong> - ${formatearFecha(pedido.fecha)}</span>
+                        </div>
+                        ${pedido.estado !== 'Pendiente' ? `
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-circle text-primary me-2"></i>
+                                <span><strong>Estado actual:</strong> ${pedido.estado}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            // Guardar el ID del pedido para posibles acciones
+            document.getElementById('pedidoIdEstado').value = pedidoId;
+
+            const modal = new bootstrap.Modal(document.getElementById('pedidoModal'));
+            modal.show();
+        }
+
+        function abrirCambiarEstado(pedidoId) {
+            const pedido = pedidosData.find(p => p.id === pedidoId);
+            if (!pedido) return;
+
+            document.getElementById('pedidoIdEstado').value = pedidoId;
+            document.getElementById('nuevoEstado').value = pedido.estado;
+            document.getElementById('notasEstado').value = '';
+
+            const modal = new bootstrap.Modal(document.getElementById('cambiarEstadoModal'));
+            modal.show();
+        }
+
+        function editarEstadoPedido() {
+            const pedidoId = document.getElementById('pedidoIdEstado').value;
+            if (pedidoId) {
+                // Cerrar modal de detalles y abrir modal de cambio de estado
+                bootstrap.Modal.getInstance(document.getElementById('pedidoModal')).hide();
+                abrirCambiarEstado(parseInt(pedidoId));
+            }
+        }
+
+        function guardarCambioEstado() {
+            const pedidoId = parseInt(document.getElementById('pedidoIdEstado').value);
+            const nuevoEstado = document.getElementById('nuevoEstado').value;
+            const notas = document.getElementById('notasEstado').value;
+
+            if (!nuevoEstado) {
+                alert('Por favor selecciona un estado');
+                return;
+            }
+
+            // Encontrar y actualizar el pedido
+            const pedidoIndex = pedidosData.findIndex(p => p.id === pedidoId);
+            if (pedidoIndex !== -1) {
+                pedidosData[pedidoIndex].estado = nuevoEstado;
+                
+                // Mostrar mensaje de éxito
+                mostrarNotificacion(`Estado del pedido #${pedidoId} actualizado a "${nuevoEstado}"`, 'success');
+                
+                // Actualizar la vista
+                actualizarEstadisticas();
+                aplicarFiltros();
+                
+                // Cerrar modal
+                bootstrap.Modal.getInstance(document.getElementById('cambiarEstadoModal')).hide();
+            }
+        }
+
+        function exportarPedidos() {
+            // Crear CSV con los pedidos filtrados
+            const headers = ['ID Pedido', 'Cliente', 'Email', 'Fecha', 'Estado', 'Total', 'Dirección'];
+            const csvContent = [
+                headers.join(','),
+                ...filteredPedidos.map(pedido => [
+                    pedido.id,
+                    `"${pedido.cliente}"`,
+                    pedido.email,
+                    pedido.fecha,
+                    `"${pedido.estado}"`,
+                    pedido.total,
+                    `"${pedido.direccion}"`
+                ].join(','))
+            ].join('\n');
+
+            // Descargar archivo
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `pedidos_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            mostrarNotificacion('Archivo CSV exportado exitosamente', 'success');
+        }
+
+        function mostrarNotificacion(mensaje, tipo = 'info') {
+            // Crear elemento de notificación
+            const notificacion = document.createElement('div');
+            notificacion.className = `alert alert-${tipo === 'success' ? 'success' : 'info'} alert-dismissible fade show position-fixed`;
+            notificacion.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notificacion.innerHTML = `
+                <i class="fas fa-${tipo === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            document.body.appendChild(notificacion);
+
+            // Auto-eliminar después de 5 segundos
+            setTimeout(() => {
+                if (notificacion.parentNode) {
+                    notificacion.parentNode.removeChild(notificacion);
+                }
+            }, 5000);
+        }
+
+        function goToAdminDashboard() {
+            // En una aplicación real, esto redirigiría al dashboard
+            window.location.href = '/admin';
+        }
+
+        // Función para simular agregar un nuevo pedido (para demostración)
+        function agregarPedidoDemo() {
+            const nuevoId = Math.max(...pedidosData.map(p => p.id)) + 1;
+            const nuevoPedido = {
+                id: nuevoId,
+                cliente: "Cliente Demo",
+                email: "demo@email.com",
+                fecha: new Date().toISOString().slice(0, 16).replace('T', ' '),
+                estado: "Pendiente",
+                total: 149990,
+                productos: [
+                    { nombre: "Producto Demo", cantidad: 1, precio: 149990 }
+                ],
+                direccion: "Dirección Demo 123"
+            };
+
+            pedidosData.unshift(nuevoPedido);
+            actualizarEstadisticas();
+            aplicarFiltros();
+            mostrarNotificacion(`Nuevo pedido #${nuevoId} agregado`, 'success');
+        }
+
+        // Agregar teclas de acceso rápido
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + F para enfocar búsqueda
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+            
+            // Ctrl + E para exportar
+            if (e.ctrlKey && e.key === 'e') {
+                e.preventDefault();
+                exportarPedidos();
+            }
+        });
+
+        // Actualizar datos cada 30 segundos (simulación de tiempo real)
+        setInterval(function() {
+            // En una aplicación real, esto haría una petición al servidor
+            // para obtener datos actualizados
+            console.log('Actualizando datos...');
+        }, 30000);
+    </script>
 </body>
 </html>
