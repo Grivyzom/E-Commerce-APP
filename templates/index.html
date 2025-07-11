@@ -150,7 +150,8 @@
             font-weight: 700;
             margin-bottom: 1.5rem;
             line-height: 1.2;
-            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            color: #ffffff !important;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .ct-hero-subtitle {
@@ -365,6 +366,21 @@
             text-decoration: none;
         }
 
+        /* Fixed Add to Cart Buttons */
+        .ct-add-to-cart.loading .btn-text { opacity: 0; }
+        .ct-add-to-cart.loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .ct-add-to-cart:disabled { opacity: 0.8; cursor: not-allowed; }
+
         /* Features Section */
         .ct-features {
             padding: 4rem 0;
@@ -479,6 +495,77 @@
             transform: translateX(0);
         }
 
+        * Carousel Styles */
+        .products-carousel { overflow: hidden; margin: 0 -15px; }
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            gap: 30px;
+            padding: 0 15px;
+        }
+        .carousel-slide { flex: 0 0 auto; width: 350px; }
+
+        .carousel-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .carousel-btn {
+            background: white;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-btn:hover:not(:disabled) {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        @media (max-width: 1200px) { .carousel-slide { width: 300px; } }
+        @media (max-width: 768px) { .carousel-slide { width: 280px; } }
+
+        /* Notification System */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1070;
+            max-width: 350px;
+            pointer-events: none;
+        }
+
+        .notification {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            margin-bottom: 10px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(400px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: auto;
+            border-left: 4px solid;
+        }
+
+        .notification.show { transform: translateX(0); opacity: 1; }
+        .notification.success { border-left-color: var(--success-color); }
+        .notification.error { border-left-color: var(--danger-color); }
+
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .ct-hero-title {
@@ -547,6 +634,8 @@
     </style>
 </head>
 <body>
+
+    <div class="notification-container" id="notificationContainer"></div>
     <!-- Scroll Progress Indicator -->
     <div class="ct-scroll-indicator" id="scrollIndicator"></div>
 
@@ -687,65 +776,67 @@
                 </p>
             </div>
 
-            <!-- Loading State -->
-            <div class="ct-products-loading" id="productsLoading">
-                <div class="ct-loading-spinner"></div>
-                <p class="mt-3 text-muted">Cargando productos...</p>
-            </div>
-
-            <!-- Products Grid -->
-            <div class="row" id="productsGrid">
-                {% for producto in productos %}
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="ct-product-card ct-fade-in" style="animation-delay: {{ loop.index0 * 0.1 }}s;">
-                        <div class="ct-product-image">
-                            {% if loop.index0 == 0 %}
-                                <div class="ct-product-badge">Destacado</div>
-                            {% elif loop.index0 == 1 %}
-                                <div class="ct-product-badge">Nuevo</div>
-                            {% endif %}
-                            <img src="{{ url_for('static', filename='img/' + (producto.imagen_url or 'placeholder.jpg')) }}" 
-                                 alt="{{ producto.nombre }}"
-                                 onerror="this.src='{{ url_for('static', filename='img/placeholder.jpg') }}'">
-                        </div>
-                        <div class="ct-product-content">
-                            <h3 class="ct-product-title">{{ producto.nombre }}</h3>
-                            <p class="ct-product-description">
-                                {{ producto.descripcion or 'Producto de alta calidad con las mejores especificaciones del mercado.' }}
-                            </p>
-                            <div class="ct-product-footer">
-                                <span class="ct-product-price">
-                                    ${{ "{:,.0f}".format(producto.precio|float) }}
-                                </span>
-                                {% if session.usuario %}
-                                <button class="ct-add-to-cart" 
-                                        data-producto-id="{{ producto.id_producto }}"
-                                        type="button">
-                                    <i class="fas fa-cart-plus"></i>
-                                    <span>Agregar</span>
-                                </button>
-                                {% else %}
-                                    <a href="{{ url_for('login') }}" class="ct-add-to-cart">
-                                        <i class="fas fa-sign-in-alt"></i>
-                                        <span>Iniciar Sesión</span>
-                                    </a>
+            <!-- Carrusel de Productos -->
+            <div class="products-carousel" id="productsCarousel">
+                <div class="carousel-track" id="carouselTrack">
+                    {% for producto in productos %}
+                    <div class="carousel-slide">
+                        <div class="ct-product-card ct-fade-in" style="animation-delay: {{ loop.index0 * 0.1 }}s;">
+                            <div class="ct-product-image">
+                                {% if loop.index0 == 0 %}
+                                    <div class="ct-product-badge">Destacado</div>
+                                {% elif loop.index0 == 1 %}
+                                    <div class="ct-product-badge">Nuevo</div>
                                 {% endif %}
+                                <img src="{{ url_for('static', filename='img/' + (producto.imagen_url or 'placeholder.jpg')) }}" 
+                                    alt="{{ producto.nombre }}"
+                                    onerror="this.src='{{ url_for('static', filename='img/placeholder.jpg') }}'">
+                            </div>
+                            <div class="ct-product-content">
+                                <h3 class="ct-product-title">{{ producto.nombre }}</h3>
+                                <p class="ct-product-description">
+                                    {{ producto.descripcion or 'Producto de alta calidad con las mejores especificaciones del mercado.' }}
+                                </p>
+                                <div class="ct-product-footer">
+                                    <span class="ct-product-price">
+                                        ${{ "{:,.0f}".format(producto.precio|float) }}
+                                    </span>
+                                    {% if session.usuario %}
+                                    <button class="ct-add-to-cart" 
+                                            data-producto-id="{{ producto.id_producto }}"
+                                            onclick="addToCartFixed(this)"
+                                            type="button">
+                                        <span class="btn-text">
+                                            <i class="fas fa-cart-plus"></i>
+                                            Agregar
+                                        </span>
+                                    </button>
+                                    {% else %}
+                                        <a href="{{ url_for('login') }}" class="ct-add-to-cart">
+                                            <i class="fas fa-sign-in-alt"></i>
+                                            <span>Iniciar Sesión</span>
+                                        </a>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
 
-            {% if not productos %}
-            <div class="text-center py-5">
-                <div class="ct-fade-in">
-                    <i class="fas fa-box-open" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
-                    <h3 style="color: var(--text-secondary);">No hay productos disponibles</h3>
-                    <p class="text-muted">Pronto agregaremos nuevos productos a nuestro catálogo.</p>
-                </div>
+            <!-- Controles del Carrusel -->
+            <div class="carousel-controls">
+                <button class="carousel-btn" id="prevBtn" onclick="previousSlide()">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                
+                <div class="carousel-indicators" id="carouselIndicators"></div>
+                
+                <button class="carousel-btn" id="nextBtn" onclick="nextSlide()">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
-            {% endif %}
         </div>
     </section>
 
@@ -974,460 +1065,247 @@
     </script>
 <!-- Agregar este script al final de index.html y carrito.html -->
 <script>
-// ==========================================
-// SISTEMA DE CARRITO AJAX - COMERCIOTECH
-// ==========================================
+// ===============================================
+// SISTEMA DE NOTIFICACIONES CORREGIDO
+// ===============================================
+let notificationCount = 0;
+const MAX_NOTIFICATIONS = 5;
 
-class CarritoManager {
-    constructor() {
-        this.initializeEventListeners();
-        this.actualizarContadorCarrito();
+function showNotificationFixed(message, type = 'success', title = '') {
+    const container = document.getElementById('notificationContainer');
+    
+    // Remover notificaciones excesivas
+    const existing = container.querySelectorAll('.notification');
+    if (existing.length >= MAX_NOTIFICATIONS) {
+        existing[0].remove();
     }
 
-    // Inicializar event listeners
-    initializeEventListeners() {
-        // Event delegation para botones de agregar al carrito
-        document.addEventListener('click', (e) => {
-            // Botón agregar al carrito en index
-            if (e.target.closest('.ct-add-to-cart[data-producto-id]')) {
-                e.preventDefault();
-                const button = e.target.closest('.ct-add-to-cart[data-producto-id]');
-                const productoId = parseInt(button.dataset.productoId);
-                this.agregarAlCarrito(productoId, 1, button);
-            }
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.id = `notification-${++notificationCount}`;
 
-            // Botón incrementar en carrito
-            if (e.target.closest('.btn-cantidad.btn-mas')) {
-                e.preventDefault();
-                const button = e.target.closest('.btn-cantidad.btn-mas');
-                const productoId = parseInt(button.dataset.productoId);
-                this.actualizarCantidad(productoId, 'incrementar', button);
-            }
+    const icons = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
+    };
 
-            // Botón disminuir en carrito
-            if (e.target.closest('.btn-cantidad.btn-menos')) {
-                e.preventDefault();
-                const button = e.target.closest('.btn-cantidad.btn-menos');
-                const productoId = parseInt(button.dataset.productoId);
-                this.actualizarCantidad(productoId, 'disminuir', button);
-            }
+    notification.innerHTML = `
+        <div style="font-size: 20px; color: var(--${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'accent'}-color);">
+            <i class="${icons[type]}"></i>
+        </div>
+        <div style="flex-grow: 1;">
+            <div style="font-weight: 600; font-size: 14px; margin-bottom: 2px;">
+                ${title || (type === 'success' ? 'Éxito' : type === 'error' ? 'Error' : 'Información')}
+            </div>
+            <div style="font-size: 13px; color: var(--text-secondary);">${message}</div>
+        </div>
+        <button onclick="closeNotification('${notification.id}')" 
+                style="background: none; border: none; font-size: 16px; cursor: pointer; padding: 0;">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
 
-            // Botón eliminar producto
-            if (e.target.closest('.btn-eliminar')) {
-                e.preventDefault();
-                const button = e.target.closest('.btn-eliminar');
-                const productoId = parseInt(button.dataset.productoId);
-                this.eliminarProducto(productoId, button);
-            }
+    container.appendChild(notification);
+    
+    setTimeout(() => notification.classList.add('show'), 50);
+    setTimeout(() => closeNotification(notification.id), 4000);
+}
 
-            // Botón vaciar carrito
-            if (e.target.closest('.btn-vaciar')) {
-                e.preventDefault();
-                const button = e.target.closest('.btn-vaciar');
-                this.vaciarCarrito(button);
-            }
-        });
-
-        // Event listeners para inputs de cantidad
-        document.addEventListener('change', (e) => {
-            if (e.target.classList.contains('cantidad-input')) {
-                const productoId = parseInt(e.target.dataset.productoId);
-                const nuevaCantidad = parseInt(e.target.value) || 1;
-                this.actualizarCantidad(productoId, 'actualizar', e.target, nuevaCantidad);
-            }
-        });
-    }
-
-    // Agregar producto al carrito
-    async agregarAlCarrito(productoId, cantidad = 1, button = null) {
-        if (button) {
-            this.setButtonLoading(button, true);
-        }
-
-        try {
-            const response = await fetch('/api/carrito/agregar', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    producto_id: productoId,
-                    cantidad: cantidad
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                this.mostrarNotificacion(data.message, 'success');
-                this.actualizarContadorCarrito(data.carrito.total_items);
-                this.animarBotonExito(button);
-            } else {
-                if (data.redirect) {
-                    window.location.href = data.redirect;
-                    return;
-                }
-                this.mostrarNotificacion(data.error, 'error');
-            }
-
-        } catch (error) {
-            console.error('Error agregando al carrito:', error);
-            this.mostrarNotificacion('Error al agregar producto al carrito', 'error');
-        } finally {
-            if (button) {
-                this.setButtonLoading(button, false);
-            }
-        }
-    }
-
-    // Actualizar cantidad de producto
-    async actualizarCantidad(productoId, accion, button = null, cantidad = 1) {
-        if (button) {
-            this.setButtonLoading(button, true);
-        }
-
-        try {
-            const response = await fetch('/api/carrito/actualizar', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    producto_id: productoId,
-                    accion: accion,
-                    cantidad: cantidad
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                this.mostrarNotificacion(data.message, 'success');
-                
-                // Actualizar UI en página de carrito
-                if (window.location.pathname === '/carrito') {
-                    if (data.producto.eliminado) {
-                        this.eliminarProductoDelDOM(productoId);
-                    } else {
-                        this.actualizarProductoEnDOM(productoId, data.producto.nueva_cantidad);
-                    }
-                    this.actualizarTotalesCarrito(data.carrito);
-                }
-                
-                this.actualizarContadorCarrito(data.carrito.total_items);
-
-                // Si no hay productos, redirigir o mostrar mensaje
-                if (data.carrito.total_items === 0 && window.location.pathname === '/carrito') {
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
-                }
-
-            } else {
-                this.mostrarNotificacion(data.error, 'error');
-            }
-
-        } catch (error) {
-            console.error('Error actualizando carrito:', error);
-            this.mostrarNotificacion('Error al actualizar carrito', 'error');
-        } finally {
-            if (button) {
-                this.setButtonLoading(button, false);
-            }
-        }
-    }
-
-    // Eliminar producto del carrito
-    async eliminarProducto(productoId, button = null) {
-        const confirmacion = confirm('¿Estás seguro de eliminar este producto del carrito?');
-        if (!confirmacion) return;
-
-        await this.actualizarCantidad(productoId, 'eliminar', button);
-    }
-
-    // Vaciar carrito completo
-    async vaciarCarrito(button = null) {
-        const confirmacion = confirm('¿Estás seguro de vaciar todo el carrito?');
-        if (!confirmacion) return;
-
-        if (button) {
-            this.setButtonLoading(button, true);
-        }
-
-        try {
-            const response = await fetch('/api/carrito/vaciar', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                this.mostrarNotificacion(data.message, 'success');
-                this.actualizarContadorCarrito(0);
-                
-                // Recargar página de carrito después de vaciar
-                if (window.location.pathname === '/carrito') {
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
-                }
-            } else {
-                this.mostrarNotificacion(data.error, 'error');
-            }
-
-        } catch (error) {
-            console.error('Error vaciando carrito:', error);
-            this.mostrarNotificacion('Error al vaciar carrito', 'error');
-        } finally {
-            if (button) {
-                this.setButtonLoading(button, false);
-            }
-        }
-    }
-
-    // Actualizar contador de carrito en navbar
-    actualizarContadorCarrito(totalItems = null) {
-        if (totalItems === null) {
-            // Obtener información del carrito
-            fetch('/api/carrito/info')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        this.actualizarContadorCarrito(data.carrito.total_items);
-                    }
-                })
-                .catch(error => console.error('Error obteniendo info del carrito:', error));
-            return;
-        }
-
-        // Actualizar badge del carrito en navbar
-        const contadores = document.querySelectorAll('.carrito-contador, .cart-badge, .badge-carrito');
-        contadores.forEach(contador => {
-            contador.textContent = totalItems;
-            
-            // Animar el contador
-            contador.style.transform = 'scale(1.3)';
-            contador.style.transition = 'transform 0.3s ease';
-            
-            setTimeout(() => {
-                contador.style.transform = 'scale(1)';
-            }, 300);
-
-            // Mostrar/ocultar badge según cantidad
-            if (totalItems > 0) {
-                contador.style.display = 'inline-block';
-            } else {
-                contador.style.display = 'none';
-            }
-        });
-
-        // Actualizar texto del enlace del carrito
-        const enlacesCarrito = document.querySelectorAll('.carrito-link-text');
-        enlacesCarrito.forEach(enlace => {
-            if (totalItems > 0) {
-                enlace.textContent = `Carrito (${totalItems})`;
-            } else {
-                enlace.textContent = 'Carrito';
-            }
-        });
-    }
-
-    // Estados de loading para botones
-    setButtonLoading(button, loading) {
-        if (!button) return;
-
-        if (loading) {
-            button.dataset.originalText = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
-            button.disabled = true;
-            button.style.pointerEvents = 'none';
-        } else {
-            button.innerHTML = button.dataset.originalText || button.innerHTML;
-            button.disabled = false;
-            button.style.pointerEvents = '';
-        }
-    }
-
-    // Animación de éxito para botones
-    animarBotonExito(button) {
-        if (!button) return;
-
-        const textoOriginal = button.innerHTML;
-        button.innerHTML = '<i class="fas fa-check"></i> ¡Agregado!';
-        button.style.background = 'var(--success-color)';
-        button.disabled = true;
-
-        setTimeout(() => {
-            button.innerHTML = textoOriginal;
-            button.style.background = '';
-            button.disabled = false;
-        }, 2000);
-    }
-
-    // Actualizar producto en DOM (página carrito)
-    actualizarProductoEnDOM(productoId, nuevaCantidad) {
-        const productoElement = document.querySelector(`[data-producto-id="${productoId}"]`);
-        if (!productoElement) return;
-
-        // Actualizar display de cantidad
-        const cantidadDisplay = productoElement.querySelector('.cantidad-display');
-        if (cantidadDisplay) {
-            cantidadDisplay.textContent = nuevaCantidad;
-        }
-
-        // Actualizar input de cantidad si existe
-        const cantidadInput = productoElement.querySelector('.cantidad-input');
-        if (cantidadInput) {
-            cantidadInput.value = nuevaCantidad;
-        }
-
-        // Actualizar subtotal (si tienes los datos del precio)
-        this.actualizarSubtotalProducto(productoElement, nuevaCantidad);
-    }
-
-    // Eliminar producto del DOM
-    eliminarProductoDelDOM(productoId) {
-        const productoElement = document.querySelector(`[data-producto-id="${productoId}"]`);
-        if (productoElement) {
-            // Animación de salida
-            productoElement.style.opacity = '0';
-            productoElement.style.transform = 'translateX(100%)';
-            productoElement.style.transition = 'all 0.5s ease';
-
-            setTimeout(() => {
-                productoElement.remove();
-            }, 500);
-        }
-    }
-
-    // Actualizar totales del carrito
-    actualizarTotalesCarrito(carritoData) {
-        // Actualizar total general
-        const totalElement = document.getElementById('total');
-        if (totalElement) {
-            totalElement.textContent = `$${carritoData.total_precio.toLocaleString('es-CL')}`;
-        }
-
-        // Actualizar subtotal
-        const subtotalElement = document.getElementById('subtotal');
-        if (subtotalElement) {
-            subtotalElement.textContent = `$${carritoData.total_precio.toLocaleString('es-CL')}`;
-        }
-
-        // Calcular envío
-        const envioGratis = carritoData.total_precio >= 50000;
-        const costoEnvio = envioGratis ? 0 : 5990;
-        const totalConEnvio = carritoData.total_precio + costoEnvio;
-
-        const envioElement = document.getElementById('envio');
-        if (envioElement) {
-            if (envioGratis) {
-                envioElement.innerHTML = '<span class="envio-gratis">GRATIS</span>';
-            } else {
-                envioElement.textContent = `$${costoEnvio.toLocaleString('es-CL')}`;
-            }
-        }
-
-        // Actualizar total final
-        const totalFinalElement = document.getElementById('total');
-        if (totalFinalElement) {
-            totalFinalElement.textContent = `$${totalConEnvio.toLocaleString('es-CL')}`;
-        }
-    }
-
-    // Actualizar subtotal de un producto específico
-    actualizarSubtotalProducto(productoElement, cantidad) {
-        const precioElement = productoElement.querySelector('[data-precio]');
-        const subtotalElement = productoElement.querySelector('.subtotal-valor');
-        
-        if (precioElement && subtotalElement) {
-            const precio = parseFloat(precioElement.dataset.precio);
-            const subtotal = precio * cantidad;
-            subtotalElement.textContent = `$${subtotal.toLocaleString('es-CL')}`;
-        }
-    }
-
-    // Sistema de notificaciones
-    mostrarNotificacion(mensaje, tipo = 'info') {
-        // Crear elemento de notificación
-        const notificacion = document.createElement('div');
-        notificacion.className = `position-fixed top-0 end-0 m-3 alert alert-${tipo === 'success' ? 'success' : tipo === 'error' ? 'danger' : 'info'} alert-dismissible fade show`;
-        notificacion.style.zIndex = '9999';
-        notificacion.style.minWidth = '300px';
-        notificacion.innerHTML = `
-            <i class="fas fa-${tipo === 'success' ? 'check-circle' : tipo === 'error' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
-            ${mensaje}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        
-        document.body.appendChild(notificacion);
-        
-        // Auto-eliminar después de 5 segundos
-        setTimeout(() => {
-            if (notificacion.parentNode) {
-                notificacion.style.opacity = '0';
-                setTimeout(() => {
-                    if (notificacion.parentNode) {
-                        notificacion.parentNode.removeChild(notificacion);
-                    }
-                }, 300);
-            }
-        }, 5000);
+function closeNotification(id) {
+    const notification = document.getElementById(id);
+    if (notification) {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 400);
     }
 }
 
-// ==========================================
-// INICIALIZAR SISTEMA DE CARRITO
-// ==========================================
+// ===============================================
+// BOTONES AGREGAR AL CARRITO CORREGIDOS
+// ===============================================
+function addToCartFixed(button) {
+    if (button.classList.contains('loading') || button.disabled) return;
 
-// Esperar a que el DOM esté listo
+    const productoId = parseInt(button.dataset.productoId);
+    const originalText = button.querySelector('.btn-text').innerHTML;
+
+    // Estado loading
+    button.classList.add('loading');
+    button.disabled = true;
+
+    // Hacer petición AJAX
+    fetch('/api/carrito/agregar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ producto_id: productoId, cantidad: 1 })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Estado success
+            button.classList.remove('loading');
+            button.classList.add('success');
+            button.querySelector('.btn-text').innerHTML = '<i class="fas fa-check"></i> ¡Agregado!';
+            
+            // Notificación
+            showNotificationFixed(data.message, 'success');
+            
+            // Reset después de 2 segundos
+            setTimeout(() => {
+                button.classList.remove('success');
+                button.disabled = false;
+                button.querySelector('.btn-text').innerHTML = originalText;
+            }, 2000);
+        } else {
+            // Error
+            button.classList.remove('loading');
+            button.disabled = false;
+            showNotificationFixed(data.error, 'error');
+        }
+    })
+    .catch(error => {
+        button.classList.remove('loading');
+        button.disabled = false;
+        showNotificationFixed('Error al agregar producto', 'error');
+    });
+}
+
+// ===============================================
+// CARRUSEL DE PRODUCTOS
+// ===============================================
+class ProductCarousel {
+    constructor() {
+        this.track = document.getElementById('carouselTrack');
+        this.slides = this.track?.querySelectorAll('.carousel-slide') || [];
+        this.indicators = document.getElementById('carouselIndicators');
+        this.currentIndex = 0;
+        this.slidesPerView = this.getSlidesPerView();
+        this.maxIndex = Math.max(0, this.slides.length - this.slidesPerView);
+        
+        if (this.slides.length > 0) {
+            this.init();
+        }
+    }
+
+    getSlidesPerView() {
+        const width = window.innerWidth;
+        if (width >= 1200) return Math.min(3, this.slides.length);
+        if (width >= 768) return Math.min(2, this.slides.length);
+        return 1;
+    }
+
+    init() {
+        this.createIndicators();
+        this.updateCarousel();
+        this.bindEvents();
+    }
+
+    createIndicators() {
+        if (!this.indicators) return;
+        
+        this.indicators.innerHTML = '';
+        const totalPages = Math.ceil(this.slides.length / this.slidesPerView);
+        
+        for (let i = 0; i < totalPages; i++) {
+            const dot = document.createElement('div');
+            dot.className = `carousel-dot ${i === 0 ? 'active' : ''}`;
+            dot.style.cssText = `
+                width: 10px; height: 10px; border-radius: 50%;
+                background: ${i === 0 ? 'var(--accent-color)' : 'rgba(52, 152, 219, 0.3)'};
+                cursor: pointer; transition: all 0.3s ease;
+            `;
+            dot.addEventListener('click', () => this.goToSlide(i * this.slidesPerView));
+            this.indicators.appendChild(dot);
+        }
+    }
+
+    updateCarousel() {
+        if (this.slides.length === 0) return;
+        
+        const slideWidth = this.slides[0].offsetWidth;
+        const gap = 30;
+        const offset = -(this.currentIndex * (slideWidth + gap));
+        
+        this.track.style.transform = `translateX(${offset}px)`;
+        
+        // Actualizar botones
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        if (prevBtn) prevBtn.disabled = this.currentIndex === 0;
+        if (nextBtn) nextBtn.disabled = this.currentIndex >= this.maxIndex;
+        
+        // Actualizar indicadores
+        const dots = this.indicators?.querySelectorAll('.carousel-dot');
+        if (dots) {
+            const activePageIndex = Math.floor(this.currentIndex / this.slidesPerView);
+            dots.forEach((dot, index) => {
+                dot.style.background = index === activePageIndex ? 
+                    'var(--accent-color)' : 'rgba(52, 152, 219, 0.3)';
+            });
+        }
+    }
+
+    goToSlide(index) {
+        this.currentIndex = Math.max(0, Math.min(index, this.maxIndex));
+        this.updateCarousel();
+    }
+
+    nextSlide() {
+        if (this.currentIndex < this.maxIndex) {
+            this.currentIndex++;
+            this.updateCarousel();
+        }
+    }
+
+    previousSlide() {
+        if (this.currentIndex > 0) {
+            this.currentIndex--;
+            this.updateCarousel();
+        }
+    }
+
+    bindEvents() {
+        window.addEventListener('resize', () => {
+            const newSlidesPerView = this.getSlidesPerView();
+            if (newSlidesPerView !== this.slidesPerView) {
+                this.slidesPerView = newSlidesPerView;
+                this.maxIndex = Math.max(0, this.slides.length - this.slidesPerView);
+                this.currentIndex = Math.min(this.currentIndex, this.maxIndex);
+                this.createIndicators();
+                this.updateCarousel();
+            }
+        });
+    }
+}
+
+// Variables globales para el carrusel
+let carousel;
+
+function nextSlide() { carousel?.nextSlide(); }
+function previousSlide() { carousel?.previousSlide(); }
+
+// Inicializar al cargar la página
 document.addEventListener('DOMContentLoaded', function() {
-    // Crear instancia global del manager de carrito
-    window.carritoManager = new CarritoManager();
+    // Inicializar carrusel
+    carousel = new ProductCarousel();
     
-    console.log('✅ Sistema de carrito AJAX inicializado');
+    // Resto de la inicialización existente...
+    
+    // Trigger hero animation
+    setTimeout(() => {
+        document.querySelector('.ct-hero-content')?.classList.add('animate');
+    }, 300);
+
+    // Sistema de notificaciones global mejorado
+    window.showNotification = showNotificationFixed;
+    
+    console.log('✅ ComercioTech: Todas las correcciones aplicadas');
 });
 
-// ==========================================
-// FUNCIONES GLOBALES PARA COMPATIBILIDAD
-// ==========================================
-
-// Función global para agregar al carrito (mantener compatibilidad)
+// Mantener compatibilidad con el sistema de carrito existente
 function addToCartAnimation(button) {
-    if (window.carritoManager) {
-        const productoId = parseInt(button.dataset.productoId || button.closest('[data-producto-id]')?.dataset.productoId);
-        if (productoId) {
-            window.carritoManager.agregarAlCarrito(productoId, 1, button);
-        }
-    }
-}
-
-// Función para recomprar pedidos
-function recomprarPedido(pedidoId) {
-    if (confirm('¿Deseas agregar los productos de este pedido a tu carrito?')) {
-        fetch(`/recomprar/${pedidoId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.carritoManager.mostrarNotificacion(data.mensaje, 'success');
-                window.carritoManager.actualizarContadorCarrito();
-            } else {
-                window.carritoManager.mostrarNotificacion(data.error || 'Error al recomprar', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error recomprando:', error);
-            window.carritoManager.mostrarNotificacion('Error al procesar la recompra', 'error');
-        });
-    }
+    addToCartFixed(button);
 }
 </script>
 </body>
