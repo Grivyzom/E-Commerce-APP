@@ -2,101 +2,869 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Compra Finalizada</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Compra Exitosa! - ComercioTech</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/comerciotech-theme.css') }}">
     <style>
-        .exito-container {
-            text-align: center;
-            max-width: 600px;
-            margin: 50px auto;
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .exito-icon {
-            font-size: 80px;
-            color: #27ae60;
-            margin-bottom: 20px;
-        }
-        .exito-titulo {
-            color: #27ae60;
-            font-size: 2.5em;
-            margin-bottom: 20px;
-        }
-        .exito-mensaje {
-            font-size: 1.2em;
-            color: #333;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-        .botones-finalizacion {
+        body {
+            font-family: 'Inter', var(--font-primary);
+            background: var(--light-bg);
+            min-height: 100vh;
             display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
+            flex-direction: column;
         }
-        .btn-accion {
-            padding: 12px 20px;
-            border-radius: 6px;
+
+        /* Header simplificado */
+        .ct-main-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(52, 152, 219, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: var(--z-fixed);
+            padding: 1rem 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .ct-navbar-brand {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-color);
             text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ct-navbar-brand:hover {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .ct-navbar-brand i {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Hero Section de Éxito */
+        .exito-hero {
+            background: linear-gradient(135deg, var(--success-color), var(--accent-color));
+            color: white;
+            padding: 3rem 0;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 3rem;
+        }
+
+        .exito-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.05"><circle cx="30" cy="30" r="4"/></g></svg>');
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
+        }
+
+        .exito-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .exito-icon {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            margin: 0 auto 2rem;
+            backdrop-filter: blur(20px);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            animation: pulseSuccess 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseSuccess {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(255, 255, 255, 0); }
+        }
+
+        .exito-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .exito-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .pedido-numero {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: 0.75rem 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Información del pedido */
+        .info-pedido {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-top: 4px solid var(--success-color);
+        }
+
+        .info-pedido h3 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-valor {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        /* Timeline de seguimiento */
+        .timeline-seguimiento {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-seguimiento h3 {
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 1rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--success-color), var(--accent-color));
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding: 1rem 0 1rem 5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-icon {
+            position: absolute;
+            left: 0;
+            top: 1rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
             font-weight: bold;
-            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .timeline-icon.activo {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+            color: white;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+
+        .timeline-icon.completado {
+            background: var(--success-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+
+        .timeline-icon.pendiente {
+            background: #ecf0f1;
+            color: #95a5a6;
+            border: 3px solid #bdc3c7;
+        }
+
+        .timeline-content h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-content p {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .timeline-tiempo {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Próximos pasos */
+        .proximos-pasos {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e9ecef;
+        }
+
+        .proximos-pasos h3 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pasos-lista {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .paso-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .paso-item:last-child {
+            border-bottom: none;
+        }
+
+        .paso-numero {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .paso-texto {
+            flex-grow: 1;
+        }
+
+        .paso-texto h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .paso-texto p {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        /* Acciones principales */
+        .acciones-principales {
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .btn-accion {
+            background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+            color: white;
             border: none;
-            cursor: pointer;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 0.5rem;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
         }
-        .btn-principal {
-            background-color: #3498db;
+
+        .btn-accion:hover {
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
+            text-decoration: none;
+        }
+
+        .btn-accion.btn-secundario {
+            background: transparent;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+            box-shadow: none;
+        }
+
+        .btn-accion.btn-secundario:hover {
+            background: var(--accent-color);
             color: white;
         }
-        .btn-principal:hover {
-            background-color: #2980b9;
-        }
-        .btn-secundario {
-            background-color: #95a5a6;
+
+        /* Información de contacto */
+        .info-contacto {
+            background: var(--primary-color);
             color: white;
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
         }
-        .btn-secundario:hover {
-            background-color: #7f8c8d;
+
+        .info-contacto h3 {
+            color: white;
+            margin-bottom: 1rem;
         }
-        .info-adicional {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            text-align: left;
+
+        .contacto-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .contacto-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .contacto-item i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .contacto-item strong {
+            font-weight: 600;
+        }
+
+        .contacto-item span {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        .ct-footer {
+            background: var(--primary-color);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .ct-footer-content {
+            margin-bottom: 1rem;
+        }
+
+        .ct-footer-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .exito-title {
+                font-size: 2rem;
+            }
+
+            .exito-icon {
+                width: 100px;
+                height: 100px;
+                font-size: 3rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contacto-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-accion {
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-item {
+                padding-left: 4rem;
+            }
+
+            .timeline-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+                left: 0;
+            }
+        }
+
+        /* Animaciones */
+        .slide-in-up {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideInUp 0.6s ease forwards;
+        }
+
+        @keyframes slideInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Confetti Effect */
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--success-color);
+            animation: confetti-fall 3s linear infinite;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
         }
     </style>
 </head>
 <body>
-    <div class="exito-container">
-        <div class="exito-icon">✅</div>
-        
-        <h1 class="exito-titulo">¡Compra Exitosa!</h1>
-        
-        <div class="exito-mensaje">
-            <p>Tu pedido ha sido procesado correctamente y se encuentra en preparación.</p>
-            <p>En breve recibirás un correo electrónico con los detalles de tu compra y el seguimiento del envío.</p>
+    <!-- Header -->
+    <header class="ct-main-header">
+        <div class="container">
+            <nav class="d-flex justify-content-between align-items-center">
+                <a href="{{ url_for('index') }}" class="ct-navbar-brand">
+                    <i class="fas fa-laptop-code"></i>
+                    ComercioTech
+                </a>
+                
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('index') }}" class="ct-nav-btn ct-nav-btn-outline">
+                        <i class="fas fa-home"></i>
+                        <span>Inicio</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero de Éxito -->
+    <section class="exito-hero">
+        <div class="container">
+            <div class="exito-content fade-in">
+                <div class="exito-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h1 class="exito-title">¡Compra Exitosa!</h1>
+                <p class="exito-subtitle">
+                    Tu pedido ha sido procesado correctamente y se encuentra en preparación.
+                </p>
+                <div class="pedido-numero">
+                    <i class="fas fa-receipt"></i>
+                    <span>Pedido #{{ pedido_id or '12345' }}</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contenido Principal -->
+    <main class="container">
+        <!-- Información del Pedido -->
+        <div class="info-pedido slide-in-up" style="animation-delay: 0.2s;">
+            <h3>
+                <i class="fas fa-info-circle"></i>
+                Información de tu Pedido
+            </h3>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Número de Pedido</div>
+                    <div class="info-valor">#{{ pedido_id or '12345' }}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Fecha y Hora</div>
+                    <div class="info-valor">{{ "2025-01-13 14:30" or fecha_pedido }}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Estado</div>
+                    <div class="info-valor">
+                        <span class="ct-badge ct-badge-success">Confirmado</span>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Total Pagado</div>
+                    <div class="info-valor">${{ "{:,}".format(total or 125990) }}</div>
+                </div>
+            </div>
+            
+            <div class="alert alert-success" role="alert">
+                <i class="fas fa-envelope me-2"></i>
+                <strong>Confirmación enviada:</strong> Recibirás un correo electrónico con todos los detalles de tu compra en los próximos minutos.
+            </div>
         </div>
 
-        <div class="info-adicional">
-            <h3>📋 Próximos pasos:</h3>
-            <ul>
-                <li>📧 Revisa tu correo para confirmación del pedido</li>
-                <li>📦 Prepararemos tu pedido en 24-48 horas</li>
-                <li>🚛 Te notificaremos cuando esté en camino</li>
-                <li>🏠 Recibirás tu pedido en la dirección indicada</li>
+        <!-- Timeline de Seguimiento -->
+        <div class="timeline-seguimiento slide-in-up" style="animation-delay: 0.4s;">
+            <h3>
+                <i class="fas fa-route"></i>
+                Seguimiento de tu Pedido
+            </h3>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-icon completado">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h4>Pedido Confirmado</h4>
+                        <p>Tu pedido ha sido recibido y confirmado exitosamente.</p>
+                        <div class="timeline-tiempo">Completado - Ahora</div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-icon activo">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h4>En Preparación</h4>
+                        <p>Estamos preparando tus productos con el mayor cuidado.</p>
+                        <div class="timeline-tiempo">Estimado: 24-48 horas</div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-icon pendiente">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h4>En Camino</h4>
+                        <p>Tu pedido saldrá de nuestro centro de distribución.</p>
+                        <div class="timeline-tiempo">Próximamente</div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-icon pendiente">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h4>Entregado</h4>
+                        <p>Recibirás tu pedido en la dirección indicada.</p>
+                        <div class="timeline-tiempo">2-3 días hábiles</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Próximos Pasos -->
+        <div class="proximos-pasos slide-in-up" style="animation-delay: 0.6s;">
+            <h3>
+                <i class="fas fa-list-ol"></i>
+                Próximos Pasos
+            </h3>
+            
+            <ul class="pasos-lista">
+                <li class="paso-item">
+                    <div class="paso-numero">1</div>
+                    <div class="paso-texto">
+                        <h5>Revisa tu correo electrónico</h5>
+                        <p>Te enviaremos la confirmación de compra y factura electrónica.</p>
+                    </div>
+                </li>
+                
+                <li class="paso-item">
+                    <div class="paso-numero">2</div>
+                    <div class="paso-texto">
+                        <h5>Preparamos tu pedido</h5>
+                        <p>Nuestro equipo verificará y empacará cuidadosamente tus productos.</p>
+                    </div>
+                </li>
+                
+                <li class="paso-item">
+                    <div class="paso-numero">3</div>
+                    <div class="paso-texto">
+                        <h5>Te notificamos el envío</h5>
+                        <p>Recibirás el código de seguimiento para rastrear tu paquete.</p>
+                    </div>
+                </li>
+                
+                <li class="paso-item">
+                    <div class="paso-numero">4</div>
+                    <div class="paso-texto">
+                        <h5>Disfruta tus productos</h5>
+                        <p>Recibe tu pedido y comienza a disfrutar de tus nuevos equipos.</p>
+                    </div>
+                </li>
             </ul>
         </div>
 
-        <div class="botones-finalizacion">
-            <a href="{{ url_for('mis_pedidos') }}" class="btn-accion btn-principal">📦 Ver mis pedidos</a>
-            <a href="{{ url_for('index') }}" class="btn-accion btn-secundario">🛒 Seguir comprando</a>
+        <!-- Acciones Principales -->
+        <div class="acciones-principales slide-in-up" style="animation-delay: 0.8s;">
+            <a href="{{ url_for('mis_pedidos') }}" class="btn-accion">
+                <i class="fas fa-box"></i>
+                Ver Mis Pedidos
+            </a>
+            
+            <a href="{{ url_for('index') }}" class="btn-accion btn-secundario">
+                <i class="fas fa-shopping-cart"></i>
+                Seguir Comprando
+            </a>
         </div>
-    </div>
 
-    <footer class="footer">
-        <p>&copy; 2025 ComercioTech. Gracias por tu compra!</p>
+        <!-- Información de Contacto -->
+        <div class="info-contacto slide-in-up" style="animation-delay: 1s;">
+            <h3>¿Necesitas Ayuda?</h3>
+            <p>Nuestro equipo de soporte está disponible para ayudarte</p>
+            
+            <div class="contacto-grid">
+                <div class="contacto-item">
+                    <i class="fas fa-phone"></i>
+                    <strong>Teléfono</strong>
+                    <span>+56 2 2345 6789</span>
+                </div>
+                
+                <div class="contacto-item">
+                    <i class="fas fa-envelope"></i>
+                    <strong>Email</strong>
+                    <span>soporte@comerciotech.cl</span>
+                </div>
+                
+                <div class="contacto-item">
+                    <i class="fas fa-clock"></i>
+                    <strong>Horario</strong>
+                    <span>Lun - Vie: 9:00 - 18:00</span>
+                </div>
+                
+                <div class="contacto-item">
+                    <i class="fas fa-comments"></i>
+                    <strong>Chat Online</strong>
+                    <span>Disponible 24/7</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="ct-footer">
+        <div class="container">
+            <div class="ct-footer-content">
+                <div class="ct-footer-brand">
+                    <i class="fas fa-laptop-code me-2"></i>
+                    ComercioTech
+                </div>
+                <p>&copy; 2025 ComercioTech. Gracias por confiar en nosotros para potenciar tu productividad.</p>
+            </div>
+        </div>
     </footer>
-</body>
-</html>
+
+    <!-- Confetti Container -->
+    <div class="confetti" id="confetti"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Crear efecto confetti
+            createConfetti();
+            
+            // Animar elementos al cargar
+            setTimeout(() => {
+                const elements = document.querySelectorAll('.slide-in-up');
+                elements.forEach((el, index) => {
+                    setTimeout(() => {
+                        el.style.animationDelay = `${index * 0.2}s`;
+                        el.style.opacity = '1';
+                    }, index * 200);
+                });
+            }, 500);
+
+            // Auto-scroll suave para mostrar contenido
+            setTimeout(() => {
+                window.scrollTo({
+                    top: window.innerHeight * 0.3,
+                    behavior: 'smooth'
+                });
+            }, 1000);
+        });
+
+        function createConfetti() {
+            const confettiContainer = document.getElementById('confetti');
+            const colors = ['#27ae60', '#3498db', '#f39c12', '#e74c3c', '#9b59b6'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confettiPiece = document.createElement('div');
+                confettiPiece.className = 'confetti-piece';
+                confettiPiece.style.left = Math.random() * 100 + '%';
+                confettiPiece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confettiPiece.style.animationDelay = Math.random() * 3 + 's';
+                confettiPiece.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                confettiContainer.appendChild(confettiPiece);
+            }
+
+            // Remover confetti después de 5 segundos
+            setTimeout(() => {
+                confettiContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        // Simular actualizaciones del timeline
+        function actualizarTimeline() {
+            // Esta función se puede conectar con WebSockets o polling
+            // para actualizar el estado en tiempo real
+            console.log('Timeline actualizado');
+        }
+
+        // Efectos de hover mejorados
+        document.querySelectorAll('.btn-accion').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-3px) scale(1.02)';
+            });
+            
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(-3px) scale(1)';
+            });
+        });
+
+        // Tracking de eventos (opcional)
+        function trackPurchaseComplete() {
+            // Aquí se pueden agregar eventos de tracking como Google Analytics
+            console.log('Compra completada - Evento trackeado');
+        }
+
+        trackPurchaseComplete();
+
+        // Mostrar notificación de bienvenida
+        setTimeout(() => {
+            const notification = document.createElement('div');
+            notification.className = 'position-fixed bottom-0 end-0 m-4 alert alert-info alert-dismissible fade show';
+            notification.style.zIndex = '9999';
+            notification.innerHTML = `
+                <i class="fas fa-bell me-2"></i>
+                <strong>¡Recuerda!</strong> Puedes hacer seguimiento de tu pedido en la sección "Mis Pedidos"
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 8000);
+        }, 3000);
+    </script>

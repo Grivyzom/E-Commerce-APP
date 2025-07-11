@@ -631,6 +631,50 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Información de contacto */
+        .info-contacto {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .info-contacto h3 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .contacto-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .contacto-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .contacto-item i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .contacto-item strong {
+            font-weight: 600;
+        }
+
+        .contacto-item span {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
@@ -839,7 +883,39 @@
             </div>
         </div>
     </section>
-
+    <main class="container">
+        <!-- Información de Contacto -->
+        <div class="info-contacto slide-in-up" style="animation-delay: 1s;">
+            <h3>¿Necesitas Ayuda?</h3>
+            <p>Nuestro equipo de soporte está disponible para ayudarte</p>
+            
+            <div class="contacto-grid">
+                <div class="contacto-item">
+                    <i class="fas fa-phone"></i>
+                    <strong>Teléfono</strong>
+                    <span>+56 2 2345 6789</span>
+                </div>
+                
+                <div class="contacto-item">
+                    <i class="fas fa-envelope"></i>
+                    <strong>Email</strong>
+                    <span>soporte@comerciotech.cl</span>
+                </div>
+                
+                <div class="contacto-item">
+                    <i class="fas fa-clock"></i>
+                    <strong>Horario</strong>
+                    <span>Lun - Vie: 9:00 - 18:00</span>
+                </div>
+                
+                <div class="contacto-item">
+                    <i class="fas fa-comments"></i>
+                    <strong>Chat Online</strong>
+                    <span>Disponible 24/7</span>
+                </div>
+            </div>
+        </div>
+    </main>
     <!-- Footer -->
     <footer class="ct-footer">
         <div class="container">
