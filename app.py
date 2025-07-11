@@ -1506,6 +1506,137 @@ def admin_redis_cleanup():
 # INICIALIZACIÓN
 # ==========================================
 
+@app.route("/catalogo")
+def catalogo():
+    """
+    Página de catálogo con todos los productos
+    """
+    # Obtener todos los productos disponibles
+    if db.available:
+        query = "SELECT * FROM productos WHERE activo = TRUE ORDER BY nombre"
+        productos_db = db.execute_query(query, fetch=True)
+        
+        # Convertir formato para compatibilidad
+        productos = []
+        for p in productos_db:
+            producto = {
+                "id": p["id_producto"],
+                "id_producto": p["id_producto"],
+                "nombre": p["nombre"],
+                "precio": int(float(p["precio"])),
+                "imagen": p["imagen_url"],
+                "imagen_url": p["imagen_url"],
+                "descripcion": p.get("descripcion", ""),
+                "stock": p.get("stock", 0),
+                "categoria": p.get("categoria", ""),
+                "marca": p.get("marca", "ComercioTech")
+            }
+            productos.append(producto)
+    else:
+        # Fallback a archivos JSON
+        import os
+        if os.path.exists("productos.json"):
+            with open("productos.json", "r", encoding="utf-8") as f:
+                productos = json.load(f)
+        else:
+            productos = []
+    
+    return render_template("catalogo.html", productos=productos)
+
+@app.route("/api/productos")
+def api_productos():
+    """
+    API para obtener productos con filtros
+    """
+    try:
+        # Obtener parámetros de filtros
+        search = request.args.get('search', '')
+        categoria = request.args.get('categoria', '')
+        marca = request.args.get('marca', '')
+        precio_min = request.args.get('precio_min', type=float)
+        precio_max = request.args.get('precio_max', type=float)
+        ordenar = request.args.get('ordenar', '')
+        pagina = request.args.get('pagina', 1, type=int)
+        por_pagina = request.args.get('por_pagina', 12, type=int)
+        
+        # Base query
+        if db.available:
+            query = "SELECT * FROM productos WHERE activo = TRUE"
+            params = []
+            
+            # Aplicar filtros
+            if search:
+                query += " AND (nombre LIKE %s OR descripcion LIKE %s)"
+                params.extend([f"%{search}%", f"%{search}%"])
+            
+            if categoria:
+                query += " AND categoria = %s"
+                params.append(categoria)
+            
+            if marca:
+                query += " AND marca = %s"
+                params.append(marca)
+            
+            if precio_min is not None:
+                query += " AND precio >= %s"
+                params.append(precio_min)
+            
+            if precio_max is not None:
+                query += " AND precio <= %s"
+                params.append(precio_max)
+            
+            # Ordenamiento
+            if ordenar == 'nombre-asc':
+                query += " ORDER BY nombre ASC"
+            elif ordenar == 'nombre-desc':
+                query += " ORDER BY nombre DESC"
+            elif ordenar == 'precio-asc':
+                query += " ORDER BY precio ASC"
+            elif ordenar == 'precio-desc':
+                query += " ORDER BY precio DESC"
+            else:
+                query += " ORDER BY nombre ASC"
+            
+            productos_db = db.execute_query(query, params, fetch=True)
+            
+            # Convertir formato
+            productos = []
+            for p in productos_db:
+                producto = {
+                    "id": p["id_producto"],
+                    "nombre": p["nombre"],
+                    "precio": float(p["precio"]),
+                    "imagen": p["imagen_url"],
+                    "descripcion": p.get("descripcion", ""),
+                    "stock": p.get("stock", 0),
+                    "categoria": p.get("categoria", ""),
+                    "marca": p.get("marca", "ComercioTech")
+                }
+                productos.append(producto)
+        else:
+            productos = []
+        
+        # Paginación
+        total = len(productos)
+        inicio = (pagina - 1) * por_pagina
+        fin = inicio + por_pagina
+        productos_pagina = productos[inicio:fin]
+        
+        return jsonify({
+            "success": True,
+            "productos": productos_pagina,
+            "total": total,
+            "pagina": pagina,
+            "por_pagina": por_pagina,
+            "total_paginas": (total + por_pagina - 1) // por_pagina
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
 if __name__ == "__main__":
     print("🚀 Iniciando ComercioTech con Redis mejorado...")
     print(f"🔧 MySQL disponible: {'✅' if MYSQL_AVAILABLE else '❌'}")
