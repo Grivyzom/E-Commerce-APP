@@ -783,6 +783,299 @@ def iniciar_tareas_segundo_plano():
 # Llamar al final del archivo principal
 
 # ==========================================
+# NUEVAS RUTAS API PARA CARRITO (Agregar a app.py)
+# ==========================================
+
+@app.route("/api/carrito/agregar", methods=["POST"])
+def api_agregar_carrito():
+    """
+    API para agregar producto al carrito sin recargar página
+    """
+    if "user_id" not in session:
+        return jsonify({
+            "success": False,
+            "error": "Debes iniciar sesión para agregar productos al carrito",
+            "redirect": url_for("login")
+        }), 401
+    
+    try:
+        data = request.get_json()
+        producto_id = data.get("producto_id")
+        cantidad = data.get("cantidad", 1)
+        
+        if not producto_id:
+            return jsonify({
+                "success": False,
+                "error": "ID de producto requerido"
+            }), 400
+        
+        user_id = session["user_id"]
+        
+        # Verificar que el producto existe
+        if db.available:
+            query = "SELECT nombre, precio, stock FROM productos WHERE id_producto = %s AND activo = TRUE"
+            producto = db.execute_query(query, (producto_id,), fetch=True)
+            
+            if not producto:
+                return jsonify({
+                    "success": False,
+                    "error": "Producto no encontrado"
+                }), 404
+            
+            producto_info = producto[0]
+        else:
+            # Fallback a JSON
+            import os
+            if os.path.exists("productos.json"):
+                with open("productos.json", "r", encoding="utf-8") as f:
+                    productos = json.load(f)
+                producto_info = next((p for p in productos if p["id"] == producto_id), None)
+                if not producto_info:
+                    return jsonify({
+                        "success": False,
+                        "error": "Producto no encontrado"
+                    }), 404
+            else:
+                return jsonify({
+                    "success": False,
+                    "error": "No hay productos disponibles"
+                }), 500
+        
+        # Agregar al carrito
+        redis_manager.agregar_al_carrito(user_id, producto_id, cantidad)
+        
+        # Obtener información actualizada del carrito
+        carrito = redis_manager.get_carrito(user_id)
+        total_items = sum(carrito.values()) if carrito else 0
+        
+        return jsonify({
+            "success": True,
+            "message": f"¡{producto_info['nombre']} agregado al carrito!",
+            "producto": {
+                "id": producto_id,
+                "nombre": producto_info["nombre"],
+                "cantidad_agregada": cantidad,
+                "cantidad_total": carrito.get(str(producto_id), 0)
+            },
+            "carrito": {
+                "total_items": total_items,
+                "productos_count": len(carrito) if carrito else 0
+            }
+        })
+        
+    except Exception as e:
+        print(f"❌ Error en API agregar carrito: {e}")
+        return jsonify({
+            "success": False,
+            "error": "Error interno del servidor"
+        }), 500
+
+@app.route("/api/carrito/actualizar", methods=["POST"])
+def api_actualizar_carrito():
+    """
+    API para actualizar cantidad de producto en carrito
+    """
+    if "user_id" not in session:
+        return jsonify({
+            "success": False,
+            "error": "No autorizado"
+        }), 401
+    
+    try:
+        data = request.get_json()
+        producto_id = data.get("producto_id")
+        accion = data.get("accion")  # "incrementar", "disminuir", "eliminar", "actualizar"
+        cantidad = data.get("cantidad", 1)
+        
+        if not producto_id or not accion:
+            return jsonify({
+                "success": False,
+                "error": "Datos incompletos"
+            }), 400
+        
+        user_id = session["user_id"]
+        carrito_actual = redis_manager.get_carrito(user_id)
+        
+        if str(producto_id) not in carrito_actual:
+            return jsonify({
+                "success": False,
+                "error": "Producto no está en el carrito"
+            }), 404
+        
+        cantidad_actual = carrito_actual[str(producto_id)]
+        nueva_cantidad = cantidad_actual
+        mensaje = ""
+        
+        if accion == "incrementar":
+            nueva_cantidad = cantidad_actual + 1
+            redis_manager.agregar_al_carrito(user_id, producto_id, 1)
+            mensaje = "Cantidad incrementada"
+        
+        elif accion == "disminuir":
+            nueva_cantidad = cantidad_actual - 1
+            if nueva_cantidad > 0:
+                redis_manager.actualizar_cantidad_carrito(user_id, producto_id, nueva_cantidad)
+                mensaje = "Cantidad actualizada"
+            else:
+                redis_manager.quitar_del_carrito(user_id, producto_id)
+                mensaje = "Producto eliminado del carrito"
+                nueva_cantidad = 0
+        
+        elif accion == "eliminar":
+            redis_manager.quitar_del_carrito(user_id, producto_id)
+            mensaje = "Producto eliminado del carrito"
+            nueva_cantidad = 0
+        
+        elif accion == "actualizar":
+            if cantidad > 0:
+                redis_manager.actualizar_cantidad_carrito(user_id, producto_id, cantidad)
+                nueva_cantidad = cantidad
+                mensaje = "Cantidad actualizada"
+            else:
+                redis_manager.quitar_del_carrito(user_id, producto_id)
+                mensaje = "Producto eliminado del carrito"
+                nueva_cantidad = 0
+        
+        # Obtener información actualizada del carrito
+        carrito_actualizado = redis_manager.get_carrito(user_id)
+        total_items = sum(carrito_actualizado.values()) if carrito_actualizado else 0
+        
+        # Calcular nuevo total del carrito (simplificado)
+        total_precio = 0
+        if carrito_actualizado and db.available:
+            producto_ids = list(carrito_actualizado.keys())
+            if producto_ids:
+                placeholders = ','.join(['%s'] * len(producto_ids))
+                query = f"SELECT id_producto, precio FROM productos WHERE id_producto IN ({placeholders})"
+                productos_db = db.execute_query(query, producto_ids, fetch=True)
+                
+                for producto_db in productos_db:
+                    cantidad_en_carrito = carrito_actualizado[str(producto_db['id_producto'])]
+                    total_precio += float(producto_db["precio"]) * cantidad_en_carrito
+        
+        return jsonify({
+            "success": True,
+            "message": mensaje,
+            "producto": {
+                "id": producto_id,
+                "nueva_cantidad": nueva_cantidad,
+                "eliminado": nueva_cantidad == 0
+            },
+            "carrito": {
+                "total_items": total_items,
+                "productos_count": len(carrito_actualizado) if carrito_actualizado else 0,
+                "total_precio": total_precio
+            }
+        })
+        
+    except Exception as e:
+        print(f"❌ Error en API actualizar carrito: {e}")
+        return jsonify({
+            "success": False,
+            "error": "Error interno del servidor"
+        }), 500
+
+@app.route("/api/carrito/vaciar", methods=["POST"])
+def api_vaciar_carrito():
+    """
+    API para vaciar carrito completamente
+    """
+    if "user_id" not in session:
+        return jsonify({
+            "success": False,
+            "error": "No autorizado"
+        }), 401
+    
+    try:
+        user_id = session["user_id"]
+        redis_manager.vaciar_carrito(user_id)
+        
+        return jsonify({
+            "success": True,
+            "message": "Carrito vaciado correctamente",
+            "carrito": {
+                "total_items": 0,
+                "productos_count": 0,
+                "total_precio": 0
+            }
+        })
+        
+    except Exception as e:
+        print(f"❌ Error en API vaciar carrito: {e}")
+        return jsonify({
+            "success": False,
+            "error": "Error interno del servidor"
+        }), 500
+
+@app.route("/api/carrito/info")
+def api_info_carrito():
+    """
+    API para obtener información del carrito
+    """
+    if "user_id" not in session:
+        return jsonify({
+            "success": False,
+            "error": "No autorizado"
+        }), 401
+    
+    try:
+        user_id = session["user_id"]
+        carrito = redis_manager.get_carrito(user_id)
+        
+        if not carrito:
+            return jsonify({
+                "success": True,
+                "carrito": {
+                    "total_items": 0,
+                    "productos_count": 0,
+                    "total_precio": 0,
+                    "productos": []
+                }
+            })
+        
+        # Obtener detalles de productos
+        productos_carrito = []
+        total_precio = 0
+        
+        if db.available:
+            producto_ids = list(carrito.keys())
+            if producto_ids:
+                placeholders = ','.join(['%s'] * len(producto_ids))
+                query = f"SELECT * FROM productos WHERE id_producto IN ({placeholders})"
+                productos_db = db.execute_query(query, producto_ids, fetch=True)
+                
+                for producto_db in productos_db:
+                    cantidad = carrito[str(producto_db['id_producto'])]
+                    subtotal = float(producto_db["precio"]) * cantidad
+                    
+                    productos_carrito.append({
+                        "id": producto_db["id_producto"],
+                        "nombre": producto_db["nombre"],
+                        "precio": float(producto_db["precio"]),
+                        "cantidad": cantidad,
+                        "subtotal": subtotal,
+                        "imagen": producto_db["imagen_url"]
+                    })
+                    total_precio += subtotal
+        
+        return jsonify({
+            "success": True,
+            "carrito": {
+                "total_items": sum(carrito.values()),
+                "productos_count": len(carrito),
+                "total_precio": total_precio,
+                "productos": productos_carrito
+            }
+        })
+        
+    except Exception as e:
+        print(f"❌ Error en API info carrito: {e}")
+        return jsonify({
+            "success": False,
+            "error": "Error interno del servidor"
+        }), 500
+
+# ==========================================
 # RUTAS DE ADMINISTRACIÓN (MEJORADAS)
 # ==========================================
 
